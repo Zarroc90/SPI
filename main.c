@@ -1,6 +1,6 @@
 #include <msp430.h> 
 #include <main.h>
-
+#include <MPU9250.h>
 
 volatile char received_ch = 0;
 
@@ -47,12 +47,12 @@ int main(void) {
 
 *///-----------------End Wake on Motion MPU9250----------------------------------------------------------
 
-	SPI_transceive(0x6b);						//Write PWR_MGMT_1
-	SPI_transceive(0x80);						//RESET_All
+	SPI_transceive(MPUREG_PWR_MGMT_1);						//Write PWR_MGMT_1
+	SPI_transceive(BIT_H_RESET);						//RESET_All
 
 	_delay_cycles(120000);						//100ms delay
 
-	SPI_transceive(0x6b);						//Write PWR_MGMT_1
+	SPI_transceive(MPUREG_PWR_MGMT_1);						//Write PWR_MGMT_1
 	SPI_transceive(0x01);						//CYCLE =1 -> Clock Source
 
 	_delay_cycles(120000);						//100ms delay
