@@ -7,6 +7,11 @@ volatile char received_ch = 0;
 int main(void) {
 
 //--------------Init SPI ----------------------------------------------------------------------
+	//Port 1.5  CS
+	//Port 1.4	CLK
+	//Port 1.2	MOSI
+	//Port 1.1	MISO
+
 	WDTCTL = WDTPW + WDTHOLD; 								// Stop WDT
 
 	P1OUT |= BIT5;											//Port 1.5 High
@@ -47,81 +52,84 @@ int main(void) {
 
 *///-----------------End Wake on Motion MPU9250----------------------------------------------------------
 
-	SPI_transceive(MPUREG_PWR_MGMT_1);						//Write PWR_MGMT_1
-	SPI_transceive(BIT_H_RESET);						//RESET_All
+	SPI_transceive(MPUREG_PWR_MGMT_1,BIT_H_RESET);			//RESET_All
 
-	_delay_cycles(120000);						//100ms delay
+	_delay_cycles(120000);									//100ms delay
 
-	SPI_transceive(MPUREG_PWR_MGMT_1);						//Write PWR_MGMT_1
-	SPI_transceive(0x01);						//CYCLE =1 -> Clock Source
+	SPI_transceive(MPUREG_PWR_MGMT_1,0x01);					//CYCLE =1 -> Clock Source
 
-	_delay_cycles(120000);						//100ms delay
+	_delay_cycles(120000);									//100ms delay
 
-	SPI_transceive(0x6c);						//Write PWR-MGMT_2
-	SPI_transceive(0x00);						//Enable ACC,Gyro
+	SPI_transceive(MPUREG_PWR_MGMT_2,0x00);					//Enable ACC,Gyro
 
-	SPI_transceive(0x1a);						//Config
-	SPI_transceive(0x10);						//
+	SPI_transceive(MPUREG_CONFIG,0x03);						//
 
-	SPI_transceive(0x1b);						//Gyro
-	SPI_transceive(0x18);						//
+	SPI_transceive(MPUREG_GYRO_CONFIG,0x18);				//Gyro
 
-	SPI_transceive(0x1c);						//Accel
-	SPI_transceive(0x08);						//
 
-	SPI_transceive(0x1d);						//Accel 2
-	SPI_transceive(0x09);						//
+	SPI_transceive(MPUREG_ACCEL_CONFIG,0x08);				//Accel
 
-	SPI_transceive(0x37);						//int
-	SPI_transceive(0x30);						//
+
+	SPI_transceive(MPUREG_ACCEL_CONFIG_2,0x09);				//Accel 2
+
+
+	SPI_transceive(MPUREG_INT_PIN_CFG,0x22);				//int
 
 
 
-	SPI_transceive(0x6a);						//user
-	SPI_transceive(0x20);						//
 
-	SPI_transceive(0x24);						//ctrl
-	SPI_transceive(0x0d);						//
+	SPI_transceive(MPUREG_USER_CTRL,0x20);					//user
 
-	SPI_transceive(0x25);						//addr
-	SPI_transceive(0xDC);						//Magnetometer address
+	SPI_transceive(MPUREG_I2C_MST_CTRL,0x0d);				//ctrl
 
-	SPI_transceive(0x26);						//reg
-	SPI_transceive(0x0b);						//
+	SPI_transceive(MPUREG_I2C_SLV0_ADDR,AK8963_I2C_ADDR);	//addr
 
-	SPI_transceive(0x63);						//do
-	SPI_transceive(0x01);						//
+	SPI_transceive(MPUREG_I2C_SLV0_REG,AK8963_CNTL2);		//reg
 
-	SPI_transceive(0x27);						//ctrl
-	SPI_transceive(0x81);						//
+	SPI_transceive(MPUREG_I2C_SLV0_DO,0x01);				//do
 
-	SPI_transceive(0x26);						//reg
-	SPI_transceive(0x0a);						//
+	SPI_transceive(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
 
-	SPI_transceive(0x63);						//do
-	SPI_transceive(0x12);						//
+	SPI_transceive(MPUREG_I2C_SLV0_REG,AK8963_CNTL1);		//reg
 
-	SPI_transceive(0x27);						//ctrl
-	SPI_transceive(0x81);						//
+	SPI_transceive(MPUREG_I2C_SLV0_DO,0x12);				//do
+
+	SPI_transceive(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
 
 	while(1)
 	{
-		SPI_transceive(0x9a);
-		SPI_transceive(0x00);
-		SPI_transceive(0x1a);
-		SPI_transceive(0x00);
-		/*SPI_transceive(0xbb);					//read high byte of x_Axis Acceloration
-		SPI_transceive(0x00);
-		SPI_transceive(0xbc);					//read low byte of x_Axis Accelorameter
-		SPI_transceive(0x00);*/
+		SPI_transceive(0xEB,0x00);
+
 
 	}
 }
 
+/*
+ * SPI  INTERFACE
+ *
+ * 		MSB	|	6	|	5	|	4	|	3	|	2	|	1	|	LSB
+ * 	------------------------------------------------------------------
+ * 		R/W	|	A6	|	A5	|	A4	|	A3	|	A2	|	A1	|	A0
+ *
+ *
+ * 		MSB	|	6	|	5	|	4	|	3	|	2	|	1	|	LSB
+ * 	------------------------------------------------------------------
+ * 		D7	|	D6	|	D5	|	D4	|	D3	|	D2	|	D1	|	D0
+ *
+ * 		Read	1
+ * 		Write	0
+ * 		A		Address
+ * 		D		Data
+ * 		*/
 
-char SPI_transceive(char data) {
+char SPI_transceive(char reg,char data) {
 
 	P1OUT &= (~BIT5); 								// Pin 1.5 High
+
+	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
+	UCA0TXBUF = reg; 								// Send variable "data" over SPI to Slave
+	while (!(IFG2 & UCA0RXIFG)); 					// USCI_A0 RX Received?
+	received_ch = UCA0RXBUF;						// Store received data
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
 	UCA0TXBUF = data; 								// Send variable "data" over SPI to Slave
