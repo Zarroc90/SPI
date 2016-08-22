@@ -8,6 +8,8 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-char SPI_transceive(char reg,char data);
+char SPI_Transceive(char reg,char data);
+void SPI_Write (char reg, char data);
+char SPI_Read (char reg);
 
 #endif /* MAIN_H_ */

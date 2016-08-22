@@ -31,75 +31,75 @@ int main(void) {
 
 
 /*/----------------Init Wake on Motion MPU9250-------------------------------------------------------
-	SPI_transceive(0x6a);						//Write User Ctrl
-	SPI_transceive(0x10);						//Disable I2C
-	SPI_transceive(0x6b);						//Write PWR-MGMT_1
-	SPI_transceive(0x00);						//CYCLE =0, SLEEP = 0 and STANDBY = 0, 20MHz internal Oszilator
-	SPI_transceive(0x6c);						//Write PWR-MGMT_2
-	SPI_transceive(0x07);						//DIS_XA, DIS_YA, DIS_ZA = 0 and DIS_XG, DIS_YG, DIS_ZG = 1
-	SPI_transceive(0x1D);						//Write ACCEL_Config_2
-	SPI_transceive(0x09);						//ACCEL_FCHOICE_B = 0 and A_DLPFCFG[2:0]=1
-	SPI_transceive(0x38);						//Write INT_Enable
-	SPI_transceive(0x40);						//enable motion interrupt only.
-	SPI_transceive(0x69);						//Write MOT_Detect_CTRL
-	SPI_transceive(0xC0);						//set ACCEL_INTEL_EN = 1 and ACCEL_INTEL_MODE = 1Set
-	SPI_transceive(0x1F);						//Write WOM_THR (motion Threshold)
-	SPI_transceive(0x7F);						//set the WOM_Threshold[7:0] to 1~255 LSBs (0~1020mg) "127"
-	SPI_transceive(0x1E);						//Write LP_ACCEL_ODR
-	SPI_transceive(0x00);						//Lposc_clksel[3:0] = 0.24Hz ~ 500Hz
-	SPI_transceive(0x6b);						//Write PWR_MGMT_1
-	SPI_transceive(0x20);						//CYCLE =1
+	SPI_Transceive(0x6a);						//Write User Ctrl
+	SPI_Transceive(0x10);						//Disable I2C
+	SPI_Transceive(0x6b);						//Write PWR-MGMT_1
+	SPI_Transceive(0x00);						//CYCLE =0, SLEEP = 0 and STANDBY = 0, 20MHz internal Oszilator
+	SPI_Transceive(0x6c);						//Write PWR-MGMT_2
+	SPI_Transceive(0x07);						//DIS_XA, DIS_YA, DIS_ZA = 0 and DIS_XG, DIS_YG, DIS_ZG = 1
+	SPI_Transceive(0x1D);						//Write ACCEL_Config_2
+	SPI_Transceive(0x09);						//ACCEL_FCHOICE_B = 0 and A_DLPFCFG[2:0]=1
+	SPI_Transceive(0x38);						//Write INT_Enable
+	SPI_Transceive(0x40);						//enable motion interrupt only.
+	SPI_Transceive(0x69);						//Write MOT_Detect_CTRL
+	SPI_Transceive(0xC0);						//set ACCEL_INTEL_EN = 1 and ACCEL_INTEL_MODE = 1Set
+	SPI_Transceive(0x1F);						//Write WOM_THR (motion Threshold)
+	SPI_Transceive(0x7F);						//set the WOM_Threshold[7:0] to 1~255 LSBs (0~1020mg) "127"
+	SPI_Transceive(0x1E);						//Write LP_ACCEL_ODR
+	SPI_Transceive(0x00);						//Lposc_clksel[3:0] = 0.24Hz ~ 500Hz
+	SPI_Transceive(0x6b);						//Write PWR_MGMT_1
+	SPI_Transceive(0x20);						//CYCLE =1
 
 *///-----------------End Wake on Motion MPU9250----------------------------------------------------------
 
-	SPI_transceive(MPUREG_PWR_MGMT_1,BIT_H_RESET);			//RESET_All
+	SPI_Write(MPUREG_PWR_MGMT_1,BIT_H_RESET);			//RESET_All
 
-	_delay_cycles(120000);									//100ms delay
+	_delay_cycles(120000);								//100ms delay
 
-	SPI_transceive(MPUREG_PWR_MGMT_1,0x01);					//CYCLE =1 -> Clock Source
+	SPI_Write(MPUREG_PWR_MGMT_1,0x01);					//CYCLE =1 -> Clock Source
 
-	_delay_cycles(120000);									//100ms delay
+	_delay_cycles(120000);								//100ms delay
 
-	SPI_transceive(MPUREG_PWR_MGMT_2,0x00);					//Enable ACC,Gyro
+	SPI_Write(MPUREG_PWR_MGMT_2,0x00);					//Enable ACC,Gyro
 
-	SPI_transceive(MPUREG_CONFIG,0x03);						//
+	SPI_Write(MPUREG_CONFIG,0x03);						//
 
-	SPI_transceive(MPUREG_GYRO_CONFIG,0x18);				//Gyro
-
-
-	SPI_transceive(MPUREG_ACCEL_CONFIG,0x08);				//Accel
+	SPI_Write(MPUREG_GYRO_CONFIG,0x18);					//Gyro
 
 
-	SPI_transceive(MPUREG_ACCEL_CONFIG_2,0x09);				//Accel 2
+	SPI_Write(MPUREG_ACCEL_CONFIG,0x08);				//Accel
 
 
-	SPI_transceive(MPUREG_INT_PIN_CFG,0x22);				//int
+	SPI_Write(MPUREG_ACCEL_CONFIG_2,0x09);				//Accel 2
+
+
+	SPI_Write(MPUREG_INT_PIN_CFG,0x22);					//int
 
 
 
 
-	SPI_transceive(MPUREG_USER_CTRL,0x20);					//user
+	SPI_Write(MPUREG_USER_CTRL,0x20);					//user
 
-	SPI_transceive(MPUREG_I2C_MST_CTRL,0x0d);				//ctrl
+	SPI_Write(MPUREG_I2C_MST_CTRL,0x0d);				//ctrl
 
-	SPI_transceive(MPUREG_I2C_SLV0_ADDR,AK8963_I2C_ADDR);	//addr
+	SPI_Write(MPUREG_I2C_SLV0_ADDR,AK8963_I2C_ADDR);	//addr
 
-	SPI_transceive(MPUREG_I2C_SLV0_REG,AK8963_CNTL2);		//reg
+	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_CNTL2);		//reg
 
-	SPI_transceive(MPUREG_I2C_SLV0_DO,0x01);				//do
+	SPI_Write(MPUREG_I2C_SLV0_DO,0x01);					//do
 
-	SPI_transceive(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
+	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
 
-	SPI_transceive(MPUREG_I2C_SLV0_REG,AK8963_CNTL1);		//reg
+	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_CNTL1);		//reg
 
-	SPI_transceive(MPUREG_I2C_SLV0_DO,0x12);				//do
+	SPI_Write(MPUREG_I2C_SLV0_DO,0x12);					//do
 
-	SPI_transceive(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
+	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
 
 	while(1)
 	{
-		SPI_transceive(0xEB,0x00);
-
+		SPI_Read(0x6B);
+		SPI_Read(MPUREG_WHOAMI);
 
 	}
 }
@@ -122,7 +122,20 @@ int main(void) {
  * 		D		Data
  * 		*/
 
-char SPI_transceive(char reg,char data) {
+
+
+void SPI_Write (char reg, char data){
+
+	SPI_Transceive(reg,data);
+}
+
+char SPI_Read (char reg){
+
+
+	return(SPI_Transceive((reg|0x80),0x00));
+}
+
+char SPI_Transceive(char reg,char data) {
 
 	P1OUT &= (~BIT5); 								// Pin 1.5 High
 
@@ -136,9 +149,14 @@ char SPI_transceive(char reg,char data) {
 	while (!(IFG2 & UCA0RXIFG)); 					// USCI_A0 RX Received?
 	received_ch = UCA0RXBUF;						// Store received data
 
+
 	P1OUT |= (BIT5); 								// Pin 1.5 Low
 
-	_delay_cycles(1000);
+	_delay_cycles(250);
+
+	return (received_ch);
+
+
 
 }
 
