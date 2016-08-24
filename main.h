@@ -8,6 +8,23 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+int accelorameter_raw[3];
+int gyroscope_raw[3];
+int magnetometer_raw[3];
+int whoami;
+int MagID;
+float aRes = 4.0/32768.0;
+float gRes = 2000.0/32768.0;
+float mRes = 10.0 * 4219.0/32760.0;
+float ax,ay,az,gx,gy,gz,mx,my,mz;
+
+float temperature;
+
+int Read_Temp();
+void Read_Accelorameter(int * destination);
+void Read_Gyroscope(int * destination);
+void Read_Magnetometer(int * destination);
+int Read_Magnetometer_Id();
 char SPI_Transceive(char reg,char data);
 void SPI_Write (char reg, char data);
 char SPI_Read (char reg);

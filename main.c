@@ -20,7 +20,7 @@ int main(void) {
 	P1SEL2 = BIT1 | BIT2 | BIT4;							//Port Bit 1,2,4 as SPI Interfasce
 
 	UCA0CTL1 = UCSWRST;
-	UCA0CTL0 |= UCCKPH + UCCKPL + UCMSB + UCMST + UCSYNC; 	// 3-pin, 8-bit SPI master
+	UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC; 	// 3-pin, 8-bit SPI master
 	UCA0CTL1 |= UCSSEL_2; 									// SMCLK
 	UCA0BR0 |= 0x0a; 										// /10
 	UCA0BR1 = 0; 											//
@@ -52,6 +52,8 @@ int main(void) {
 
 *///-----------------End Wake on Motion MPU9250----------------------------------------------------------
 
+	whoami= SPI_Read(MPUREG_WHOAMI);
+
 	SPI_Write(MPUREG_PWR_MGMT_1,BIT_H_RESET);			//RESET_All
 
 	_delay_cycles(120000);								//100ms delay
@@ -67,7 +69,7 @@ int main(void) {
 	SPI_Write(MPUREG_GYRO_CONFIG,0x18);					//Gyro
 
 
-	SPI_Write(MPUREG_ACCEL_CONFIG,0x08);				//Accel
+	SPI_Write(MPUREG_ACCEL_CONFIG,0x08);				//Accel -> 4G Range
 
 
 	SPI_Write(MPUREG_ACCEL_CONFIG_2,0x09);				//Accel 2
@@ -78,28 +80,44 @@ int main(void) {
 
 
 
-	SPI_Write(MPUREG_USER_CTRL,0x20);					//user
+	SPI_Write(MPUREG_USER_CTRL,0x20);					//user -> Enable fifo operation mode
 
-	SPI_Write(MPUREG_I2C_MST_CTRL,0x0d);				//ctrl
+	SPI_Write(MPUREG_I2C_MST_CTRL,0x0d);				//ctrl -> MPU-9250 clock divider for i2C -> /20 -> 400kHz
 
-	SPI_Write(MPUREG_I2C_SLV0_ADDR,AK8963_I2C_ADDR);	//addr
+	SPI_Write(MPUREG_I2C_SLV0_ADDR,AK8963_I2C_ADDR);	//addr -> Write AK8963 I2C Address into Register for I2C Communication with Slave
 
-	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_CNTL2);		//reg
+	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_CNTL2);		//reg -> I2C slave register address from where to begin data transfer
 
-	SPI_Write(MPUREG_I2C_SLV0_DO,0x01);					//do
+	SPI_Write(MPUREG_I2C_SLV0_DO,0x01);					//do -> Data to be written if I2C Slave 0 enabled -> Reset magnetometer
 
-	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
+	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl ->
 
 	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_CNTL1);		//reg
 
-	SPI_Write(MPUREG_I2C_SLV0_DO,0x12);					//do
+	SPI_Write(MPUREG_I2C_SLV0_DO,0x12);					//do	-> Magnetometer continous Measurement 16 bit
 
 	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
 
+	MagID= Read_Magnetometer_Id();
+
 	while(1)
 	{
-		SPI_Read(0x6B);
-		SPI_Read(MPUREG_WHOAMI);
+
+		whoami= SPI_Read(MPUREG_WHOAMI);
+		Read_Accelorameter(accelorameter_raw);
+		ax=accelorameter_raw[0]*aRes;
+		ay=accelorameter_raw[1]*aRes;
+		az=accelorameter_raw[2]*aRes;
+		Read_Gyroscope(gyroscope_raw);
+		gx=gyroscope_raw[0]*gRes;
+		gy=gyroscope_raw[1]*gRes;
+		gz=gyroscope_raw[2]*gRes;
+		Read_Magnetometer(magnetometer_raw);
+		mx=magnetometer_raw[0]*mRes;
+		my=magnetometer_raw[1]*mRes;
+		mz=magnetometer_raw[2]*mRes;
+		temperature = ((float)Read_Temp()/333.87+ 21.0);
+
 
 	}
 }
@@ -122,7 +140,83 @@ int main(void) {
  * 		D		Data
  * 		*/
 
+int Read_Temp(){
 
+	int rawData[2];
+	rawData[0]=(int)SPI_Read(MPUREG_TEMP_OUT_H);
+	rawData[1]=(int)SPI_Read(MPUREG_TEMP_OUT_L);
+
+	return ((rawData[0]<<8)|rawData[1]);
+}
+
+void Read_Accelorameter(int * destination){
+
+	int rawData[6];
+	rawData[0]=(int)SPI_Read(MPUREG_ACCEL_XOUT_H);
+	rawData[1]=(int)SPI_Read(MPUREG_ACCEL_XOUT_L);
+	rawData[2]=(int)SPI_Read(MPUREG_ACCEL_YOUT_H);
+	rawData[3]=(int)SPI_Read(MPUREG_ACCEL_YOUT_L);
+	rawData[4]=(int)SPI_Read(MPUREG_ACCEL_ZOUT_H);
+	rawData[5]=(int)SPI_Read(MPUREG_ACCEL_ZOUT_L);
+
+	destination[0]=(rawData[0]<<8)|rawData[1];
+	destination[1]=(rawData[2]<<8)|rawData[3];
+	destination[2]=(rawData[4]<<8)|rawData[5];
+}
+
+void Read_Gyroscope(int * destination){
+
+	int rawData[6];
+	rawData[0]=(int)SPI_Read(MPUREG_GYRO_XOUT_H);
+	rawData[1]=(int)SPI_Read(MPUREG_GYRO_XOUT_L);
+	rawData[2]=(int)SPI_Read(MPUREG_GYRO_YOUT_H);
+	rawData[3]=(int)SPI_Read(MPUREG_GYRO_YOUT_L);
+	rawData[4]=(int)SPI_Read(MPUREG_GYRO_ZOUT_H);
+	rawData[5]=(int)SPI_Read(MPUREG_GYRO_ZOUT_L);
+
+	destination[0]=(rawData[0]<<8)|rawData[1];
+	destination[1]=(rawData[2]<<8)|rawData[3];
+	destination[2]=(rawData[4]<<8)|rawData[5];
+}
+
+void Read_Magnetometer(int * destination){
+
+
+	SPI_Write(MPUREG_I2C_SLV0_ADDR,(AK8963_I2C_ADDR|0x80));			//Read from Magnetometer
+	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_HXL);						//Write Address of to read Mag register
+	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x87);							// 0x8- Read Data from AK8963 0x-7 Read 7 bytes
+
+
+
+	int rawData[6];
+	rawData[0]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_01);				//HXH
+	rawData[1]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_00);				//HXL
+	rawData[2]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_03);				//HYH
+	rawData[3]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_02);				//HYL
+	rawData[4]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_05);				//HZH
+	rawData[5]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_04);				//HZL
+
+	destination[0]=(rawData[0]<<8)|rawData[1];
+	destination[1]=(rawData[2]<<8)|rawData[3];
+	destination[2]=(rawData[4]<<8)|rawData[5];
+}
+
+int Read_Magnetometer_Id(){
+
+	int id;
+
+	_delay_cycles(100);
+
+	SPI_Write(MPUREG_I2C_SLV0_ADDR,(AK8963_I2C_ADDR|0x80));			//Read from Magnetometer
+	SPI_Write(MPUREG_I2C_SLV0_REG,0x00);				//Write Address of to read Mag register
+	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);							// 0x8- Read Data from AK8963 0x-1 Read 1 bytes
+
+	_delay_cycles(100);
+
+	id= SPI_Read(MPUREG_EXT_SENS_DATA_00);
+
+	return(id);
+}
 
 void SPI_Write (char reg, char data){
 
@@ -132,7 +226,7 @@ void SPI_Write (char reg, char data){
 char SPI_Read (char reg){
 
 
-	return(SPI_Transceive((reg|0x80),0x00));
+	return(SPI_Transceive((reg|0x80),0x55));
 }
 
 char SPI_Transceive(char reg,char data) {
@@ -140,7 +234,7 @@ char SPI_Transceive(char reg,char data) {
 	P1OUT &= (~BIT5); 								// Pin 1.5 High
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
-	UCA0TXBUF = reg; 								// Send variable "data" over SPI to Slave
+	UCA0TXBUF = reg; 								// Send variable "reg" over SPI to Slave
 	while (!(IFG2 & UCA0RXIFG)); 					// USCI_A0 RX Received?
 	received_ch = UCA0RXBUF;						// Store received data
 

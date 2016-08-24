@@ -125,7 +125,7 @@
 #define MPUREG_ZA_OFFSET_L         	0x7E
 /* ---- AK8963 Reg In MPU9250 ----------------------------------------------- */
 
-#define AK8963_I2C_ADDR             0x18
+#define AK8963_I2C_ADDR             0x0C//0x18
 #define AK8963_Device_ID            0x48
 
 // Read-only Reg
