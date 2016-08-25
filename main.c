@@ -1,6 +1,7 @@
 #include <msp430.h> 
 #include <main.h>
 #include <MPU9250.h>
+#include <LSM9DS1.h>
 
 volatile char received_ch = 0;
 
@@ -9,6 +10,7 @@ int main(void) {
 //--------------Init SPI ----------------------------------------------------------------------
 	//Port 1.5  CS
 	//Port 1.4	CLK
+	//Port 1.3  Int
 	//Port 1.2	MOSI
 	//Port 1.1	MISO
 
@@ -20,9 +22,9 @@ int main(void) {
 	P1SEL2 = BIT1 | BIT2 | BIT4;							//Port Bit 1,2,4 as SPI Interfasce
 
 	UCA0CTL1 = UCSWRST;
-	UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC; 	// 3-pin, 8-bit SPI master
+	UCA0CTL0 |= /*UCCKPH +*/ UCCKPL + UCMSB + UCMST + UCSYNC; 	// 3-pin, 8-bit SPI master
 	UCA0CTL1 |= UCSSEL_2; 									// SMCLK
-	UCA0BR0 |= 0x0a; 										// /10
+	UCA0BR0 |= 0x02; 										// /2
 	UCA0BR1 = 0; 											//
 	UCA0MCTL = 0; 											// No modulation
 	UCA0CTL1 &= ~UCSWRST; 									// **Initialize USCI state machine**
@@ -31,33 +33,64 @@ int main(void) {
 	P1DIR |= BIT6;											//LED2 as OUtput
 	P1OUT &= ~BIT6;											//LED2 as off
 	P1IE |= BIT3;											//P1.3 Interrupt enabled
+	P1IES &= ~BIT3;											//Interrupt direction from low to high
 	P1IFG &= ~BIT3;											//P1.3 IFG is cleared
-	__enable_interrupt();
+	//__enable_interrupt();
 
 //----------------Init SPI End----------------------------------------------------------------------
 
 
-/*/----------------Init Wake on Motion MPU9250-------------------------------------------------------
-	SPI_Transceive(0x6a);						//Write User Ctrl
-	SPI_Transceive(0x10);						//Disable I2C
-	SPI_Transceive(0x6b);						//Write PWR-MGMT_1
-	SPI_Transceive(0x00);						//CYCLE =0, SLEEP = 0 and STANDBY = 0, 20MHz internal Oszilator
-	SPI_Transceive(0x6c);						//Write PWR-MGMT_2
-	SPI_Transceive(0x07);						//DIS_XA, DIS_YA, DIS_ZA = 0 and DIS_XG, DIS_YG, DIS_ZG = 1
-	SPI_Transceive(0x1D);						//Write ACCEL_Config_2
-	SPI_Transceive(0x09);						//ACCEL_FCHOICE_B = 0 and A_DLPFCFG[2:0]=1
-	SPI_Transceive(0x38);						//Write INT_Enable
-	SPI_Transceive(0x40);						//enable motion interrupt only.
-	SPI_Transceive(0x69);						//Write MOT_Detect_CTRL
-	SPI_Transceive(0xC0);						//set ACCEL_INTEL_EN = 1 and ACCEL_INTEL_MODE = 1Set
-	SPI_Transceive(0x1F);						//Write WOM_THR (motion Threshold)
-	SPI_Transceive(0x7F);						//set the WOM_Threshold[7:0] to 1~255 LSBs (0~1020mg) "127"
-	SPI_Transceive(0x1E);						//Write LP_ACCEL_ODR
-	SPI_Transceive(0x00);						//Lposc_clksel[3:0] = 0.24Hz ~ 500Hz
-	SPI_Transceive(0x6b);						//Write PWR_MGMT_1
-	SPI_Transceive(0x20);						//CYCLE =1
 
-*///-----------------End Wake on Motion MPU9250----------------------------------------------------------
+	//Init_MPU9250();
+	//Setup_Wake_on_Motion_Interrupt();
+
+
+
+	while(1)
+	{
+
+		whoami=SPI_Read(WHO_AM_I_XG);					//0x68 should be result;
+		test_0= SPI_Read(0x0c);
+		test_1= SPI_Read(0x0d);
+
+		/*whoami= SPI_Read(MPUREG_WHOAMI);
+		Read_Accelorameter(accelorameter_raw);
+		ax=accelorameter_raw[0]*aRes;
+		ay=accelorameter_raw[1]*aRes;
+		az=accelorameter_raw[2]*aRes;
+		Read_Gyroscope(gyroscope_raw);
+		gx=gyroscope_raw[0]*gRes;
+		gy=gyroscope_raw[1]*gRes;
+		gz=gyroscope_raw[2]*gRes;
+		Read_Magnetometer(magnetometer_raw);
+		mx=magnetometer_raw[0]*mRes;
+		my=magnetometer_raw[1]*mRes;
+		mz=magnetometer_raw[2]*mRes;
+		temperature = ((float)Read_Temp()/333.87+ 21.0);
+		*/
+
+	}
+}
+
+/*
+ * SPI  INTERFACE
+ *
+ * 		MSB	|	6	|	5	|	4	|	3	|	2	|	1	|	LSB
+ * 	------------------------------------------------------------------
+ * 		R/W	|	A6	|	A5	|	A4	|	A3	|	A2	|	A1	|	A0
+ *
+ *
+ * 		MSB	|	6	|	5	|	4	|	3	|	2	|	1	|	LSB
+ * 	------------------------------------------------------------------
+ * 		D7	|	D6	|	D5	|	D4	|	D3	|	D2	|	D1	|	D0
+ *
+ * 		Read	1
+ * 		Write	0
+ * 		A		Address
+ * 		D		Data
+ * 		*/
+
+void Init_MPU9250(){
 
 	whoami= SPI_Read(MPUREG_WHOAMI);
 
@@ -107,47 +140,8 @@ int main(void) {
 
 	MagID= Read_Magnetometer_Id();
 
-	Setup_Wake_on_Motion_Interrupt();
-
-	while(1)
-	{
-
-		/*whoami= SPI_Read(MPUREG_WHOAMI);
-		Read_Accelorameter(accelorameter_raw);
-		ax=accelorameter_raw[0]*aRes;
-		ay=accelorameter_raw[1]*aRes;
-		az=accelorameter_raw[2]*aRes;
-		Read_Gyroscope(gyroscope_raw);
-		gx=gyroscope_raw[0]*gRes;
-		gy=gyroscope_raw[1]*gRes;
-		gz=gyroscope_raw[2]*gRes;
-		Read_Magnetometer(magnetometer_raw);
-		mx=magnetometer_raw[0]*mRes;
-		my=magnetometer_raw[1]*mRes;
-		mz=magnetometer_raw[2]*mRes;
-		temperature = ((float)Read_Temp()/333.87+ 21.0);
-		*/
-
-	}
 }
 
-/*
- * SPI  INTERFACE
- *
- * 		MSB	|	6	|	5	|	4	|	3	|	2	|	1	|	LSB
- * 	------------------------------------------------------------------
- * 		R/W	|	A6	|	A5	|	A4	|	A3	|	A2	|	A1	|	A0
- *
- *
- * 		MSB	|	6	|	5	|	4	|	3	|	2	|	1	|	LSB
- * 	------------------------------------------------------------------
- * 		D7	|	D6	|	D5	|	D4	|	D3	|	D2	|	D1	|	D0
- *
- * 		Read	1
- * 		Write	0
- * 		A		Address
- * 		D		Data
- * 		*/
 
 int Read_Temp(){
 
@@ -232,12 +226,13 @@ void Setup_Wake_on_Motion_Interrupt(){
 	SPI_Write(MPUREG_PWR_MGMT_1,0x00);			//Powermanagement sleep=0, cycle=0,
 	SPI_Write(MPUREG_PWR_MGMT_2,0x07);			//Disable Gyro
 	SPI_Write(MPUREG_ACCEL_CONFIG_2,0x09);		//Set ACC to 184HZ
-	SPI_Write(MPUREG_INT_ENABLE,0x40);			//Enable Motion Interrupt
+
 	SPI_Write(MPUREG_MOT_DETECT_CTRL,0xc0);		//Enable Motion Detection Logic
-	SPI_Write(MPUREG_MOT_THR,0x7f);				//Motion Threshold LSB -> 127
-	SPI_Write(MPUREG_LP_ACCEL_ODR,0x00);		//Wake up intervall 0.24HZ
+	SPI_Write(MPUREG_MOT_THR,0x0f);				//Motion Threshold LSB -> 15
+	SPI_Write(MPUREG_LP_ACCEL_ODR,0x04);		//Wake up intervall 3.91HZ
 	SPI_Write(MPUREG_PWR_MGMT_1,0x20);			//Cycle =1;
 
+	SPI_Write(MPUREG_INT_ENABLE,0x40);			//Enable Motion Interrupt
 }
 
 
@@ -270,7 +265,7 @@ char SPI_Transceive(char reg,char data) {
 
 	P1OUT |= (BIT5); 								// Pin 1.5 Low
 
-	_delay_cycles(250);
+	_delay_cycles(150);
 
 	return (received_ch);
 }

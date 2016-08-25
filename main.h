@@ -8,6 +8,8 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+int test_0,test_1,test_2,test_3;
+
 int accelorameter_raw[3];
 int gyroscope_raw[3];
 int magnetometer_raw[3];
@@ -20,6 +22,7 @@ float ax,ay,az,gx,gy,gz,mx,my,mz;
 
 float temperature;
 
+void Init_MPU9250();
 int Read_Temp();
 void Read_Accelorameter(int * destination);
 void Read_Gyroscope(int * destination);
