@@ -27,6 +27,13 @@ int main(void) {
 	UCA0MCTL = 0; 											// No modulation
 	UCA0CTL1 &= ~UCSWRST; 									// **Initialize USCI state machine**
 
+
+	P1DIR |= BIT6;											//LED2 as OUtput
+	P1OUT &= ~BIT6;											//LED2 as off
+	P1IE |= BIT3;											//P1.3 Interrupt enabled
+	P1IFG &= ~BIT3;											//P1.3 IFG is cleared
+	__enable_interrupt();
+
 //----------------Init SPI End----------------------------------------------------------------------
 
 
@@ -58,7 +65,7 @@ int main(void) {
 
 	_delay_cycles(120000);								//100ms delay
 
-	SPI_Write(MPUREG_PWR_MGMT_1,0x01);					//CYCLE =1 -> Clock Source
+	SPI_Write(MPUREG_PWR_MGMT_1,0x00);					//CYCLE =1 -> Clock Source
 
 	_delay_cycles(120000);								//100ms delay
 
@@ -100,10 +107,12 @@ int main(void) {
 
 	MagID= Read_Magnetometer_Id();
 
+	Setup_Wake_on_Motion_Interrupt();
+
 	while(1)
 	{
 
-		whoami= SPI_Read(MPUREG_WHOAMI);
+		/*whoami= SPI_Read(MPUREG_WHOAMI);
 		Read_Accelorameter(accelorameter_raw);
 		ax=accelorameter_raw[0]*aRes;
 		ay=accelorameter_raw[1]*aRes;
@@ -117,7 +126,7 @@ int main(void) {
 		my=magnetometer_raw[1]*mRes;
 		mz=magnetometer_raw[2]*mRes;
 		temperature = ((float)Read_Temp()/333.87+ 21.0);
-
+		*/
 
 	}
 }
@@ -218,6 +227,21 @@ int Read_Magnetometer_Id(){
 	return(id);
 }
 
+void Setup_Wake_on_Motion_Interrupt(){
+
+	SPI_Write(MPUREG_PWR_MGMT_1,0x00);			//Powermanagement sleep=0, cycle=0,
+	SPI_Write(MPUREG_PWR_MGMT_2,0x07);			//Disable Gyro
+	SPI_Write(MPUREG_ACCEL_CONFIG_2,0x09);		//Set ACC to 184HZ
+	SPI_Write(MPUREG_INT_ENABLE,0x40);			//Enable Motion Interrupt
+	SPI_Write(MPUREG_MOT_DETECT_CTRL,0xc0);		//Enable Motion Detection Logic
+	SPI_Write(MPUREG_MOT_THR,0x7f);				//Motion Threshold LSB -> 127
+	SPI_Write(MPUREG_LP_ACCEL_ODR,0x00);		//Wake up intervall 0.24HZ
+	SPI_Write(MPUREG_PWR_MGMT_1,0x20);			//Cycle =1;
+
+}
+
+
+
 void SPI_Write (char reg, char data){
 
 	SPI_Transceive(reg,data);
@@ -249,9 +273,12 @@ char SPI_Transceive(char reg,char data) {
 	_delay_cycles(250);
 
 	return (received_ch);
-
-
-
 }
 
+#pragma vector=PORT1_VECTOR
+__interrupt void Port_1(void){
 
+	P1OUT ^= BIT6;				//Toggle LED
+	P1IFG &= ~BIT3;				//Clear Interrupt Flag
+	SPI_Read(MPUREG_INT_STATUS);//Clear INterrupt MPU9250
+}

@@ -25,6 +25,7 @@ void Read_Accelorameter(int * destination);
 void Read_Gyroscope(int * destination);
 void Read_Magnetometer(int * destination);
 int Read_Magnetometer_Id();
+void Setup_Wake_on_Motion_Interrupt();
 char SPI_Transceive(char reg,char data);
 void SPI_Write (char reg, char data);
 char SPI_Read (char reg);
