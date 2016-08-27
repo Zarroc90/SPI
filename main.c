@@ -49,12 +49,16 @@ int main(void) {
 	while(1)
 	{
 
+		//whoami=SPI_Read(0x00);							//0xFA
+	//-------BMI160------------------------------------------------------------------
+		//whoami=SPI_Read(0x00);							//0xD1
+	//-------LSM9DS1-----------------------------------------------------------------
 		whoami=SPI_Read(WHO_AM_I_XG);					//0x68 should be result;
-		test_0= SPI_Read(0x0c);
-		test_1= SPI_Read(0x0d);
-
-		/*whoami= SPI_Read(MPUREG_WHOAMI);
-		Read_Accelorameter(accelorameter_raw);
+		//test_0= SPI_Read(0x0c);
+		//test_1= SPI_Read(0x0d);
+	//-------MPU9250------------------------------------------------------------------
+		//whoami= SPI_Read(MPUREG_WHOAMI);				//should be 0x71
+		/*Read_Accelorameter(accelorameter_raw);
 		ax=accelorameter_raw[0]*aRes;
 		ay=accelorameter_raw[1]*aRes;
 		az=accelorameter_raw[2]*aRes;
