@@ -6,7 +6,7 @@
 main.obj: ../main.c $(GEN_OPTS) $(GEN_HDRS)
 	@echo 'Building file: $<'
 	@echo 'Invoking: MSP430 Compiler'
-	"D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/bin/cl430" -vmsp --use_hw_mpy=none --include_path="D:/Software/TI/ccsv6/ccs_base/msp430/include" --include_path="E:/Projekte/TI_II/SPI" --include_path="D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include" --advice:power=all -g --define=__MSP430G2553__ --diag_wrap=off --display_error_number --diag_warning=225 --printf_support=minimal --preproc_with_compile --preproc_dependency="main.d" $(GEN_OPTS__FLAG) "$<"
+	"C:/ti/ccsv6/tools/compiler/ti-cgt-msp430_15.12.1.LTS/bin/cl430" -vmsp --use_hw_mpy=none --include_path="C:/ti/ccsv6/ccs_base/msp430/include" --include_path="C:/Users/Marvin/Documents/GitHub/SPI" --include_path="C:/ti/ccsv6/tools/compiler/ti-cgt-msp430_15.12.1.LTS/include" --advice:power=all -g --define=__MSP430G2553__ --diag_warning=225 --display_error_number --diag_wrap=off --printf_support=minimal --preproc_with_compile --preproc_dependency="main.d" $(GEN_OPTS__FLAG) "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
