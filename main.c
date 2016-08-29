@@ -16,8 +16,8 @@ int main(void) {
 
 	WDTCTL = WDTPW + WDTHOLD; 								// Stop WDT
 
-	P1OUT |= BIT5;											//Port 1.5 High
-	P1DIR |= BIT5;											//Port 1.5 as Output
+	P1OUT |= BIT5 + BIT6 + BIT7;							//Port 1.5,1.6,1.7 as High
+	P1DIR |= BIT5 + BIT6 + BIT7;							//Port 1.5,1.6,1.7 as Output
 	P1SEL = BIT1 | BIT2 | BIT4;								//Port Bit 1,2,4 as SPI Interface
 	P1SEL2 = BIT1 | BIT2 | BIT4;							//Port Bit 1,2,4 as SPI Interfasce
 
@@ -30,8 +30,8 @@ int main(void) {
 	UCA0CTL1 &= ~UCSWRST; 									// **Initialize USCI state machine**
 
 
-	P1DIR |= BIT6;											//LED2 as OUtput
-	P1OUT &= ~BIT6;											//LED2 as off
+	//P1DIR |= BIT6;											//LED2 as OUtput
+	//P1OUT &= ~BIT6;											//LED2 as off
 	P1IE |= BIT3;											//P1.3 Interrupt enabled
 	P1IES &= ~BIT3;											//Interrupt direction from low to high
 	P1IFG &= ~BIT3;											//P1.3 IFG is cleared
@@ -50,16 +50,18 @@ int main(void) {
 	{
 
 	//-------BMX055------------------------------------------------------------------
-		//whoami=SPI_Read(0x00);							//0xFA
+		//whoami=SPI_Read(CS_0,0x00);							//0xFA
 	//-------BMI160------------------------------------------------------------------
-		//whoami=SPI_Read(0x00);							//0xD1
+		//whoami=SPI_Read(CS_0,0x00);							//0xD1
 	//-------LSM9DS1-----------------------------------------------------------------
-		whoami=SPI_Read(WHO_AM_I_XG);					//0x68 should be result;
-		//test_0= SPI_Read(0x0c);
-		//test_1= SPI_Read(0x0d);
+		whoami=SPI_Read(LSM9DS1_AG,WHO_AM_I_XG);					//0x68 should be result;
+
+		Read_Accelorameter(accelorameter_raw);
+
 	//-------MPU9250------------------------------------------------------------------
-		//whoami= SPI_Read(MPUREG_WHOAMI);				//should be 0x71
-		/*Read_Accelorameter(accelorameter_raw);
+		/*whoami= SPI_Read(MPU9250_AGM,MPUREG_WHOAMI);				//should be 0x71
+		Init_MPU9250();
+		Read_Accelorameter(accelorameter_raw);
 		ax=accelorameter_raw[0]*aRes;
 		ay=accelorameter_raw[1]*aRes;
 		az=accelorameter_raw[2]*aRes;
@@ -97,62 +99,67 @@ int main(void) {
 
 void Init_MPU9250(){
 
-	whoami= SPI_Read(MPUREG_WHOAMI);
-
-	SPI_Write(MPUREG_PWR_MGMT_1,BIT_H_RESET);			//RESET_All
+	SPI_Write(MPU9250_AGM,MPUREG_PWR_MGMT_1,BIT_H_RESET);			//RESET_All
 
 	_delay_cycles(120000);								//100ms delay
 
-	SPI_Write(MPUREG_PWR_MGMT_1,0x00);					//CYCLE =1 -> Clock Source
+	SPI_Write(MPU9250_AGM,MPUREG_PWR_MGMT_1,0x00);					//CYCLE =1 -> Clock Source
 
 	_delay_cycles(120000);								//100ms delay
 
-	SPI_Write(MPUREG_PWR_MGMT_2,0x00);					//Enable ACC,Gyro
+	SPI_Write(MPU9250_AGM,MPUREG_PWR_MGMT_2,0x00);					//Enable ACC,Gyro
 
-	SPI_Write(MPUREG_CONFIG,0x03);						//
+	SPI_Write(MPU9250_AGM,MPUREG_CONFIG,0x03);						//
 
-	SPI_Write(MPUREG_GYRO_CONFIG,0x18);					//Gyro
-
-
-	SPI_Write(MPUREG_ACCEL_CONFIG,0x08);				//Accel -> 4G Range
+	SPI_Write(MPU9250_AGM,MPUREG_GYRO_CONFIG,0x18);					//Gyro
 
 
-	SPI_Write(MPUREG_ACCEL_CONFIG_2,0x09);				//Accel 2
+	SPI_Write(MPU9250_AGM,MPUREG_ACCEL_CONFIG,0x08);				//Accel -> 4G Range
 
 
-	SPI_Write(MPUREG_INT_PIN_CFG,0x22);					//int
+	SPI_Write(MPU9250_AGM,MPUREG_ACCEL_CONFIG_2,0x09);				//Accel 2
+
+
+	SPI_Write(MPU9250_AGM,MPUREG_INT_PIN_CFG,0x22);					//int
 
 
 
 
-	SPI_Write(MPUREG_USER_CTRL,0x20);					//user -> Enable fifo operation mode
+	SPI_Write(MPU9250_AGM,MPUREG_USER_CTRL,0x20);					//user -> Enable fifo operation mode
 
-	SPI_Write(MPUREG_I2C_MST_CTRL,0x0d);				//ctrl -> MPU-9250 clock divider for i2C -> /20 -> 400kHz
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_MST_CTRL,0x0d);				//ctrl -> MPU-9250 clock divider for i2C -> /20 -> 400kHz
 
-	SPI_Write(MPUREG_I2C_SLV0_ADDR,AK8963_I2C_ADDR);	//addr -> Write AK8963 I2C Address into Register for I2C Communication with Slave
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_ADDR,AK8963_I2C_ADDR);	//addr -> Write AK8963 I2C Address into Register for I2C Communication with Slave
 
-	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_CNTL2);		//reg -> I2C slave register address from where to begin data transfer
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_REG,AK8963_CNTL2);		//reg -> I2C slave register address from where to begin data transfer
 
-	SPI_Write(MPUREG_I2C_SLV0_DO,0x01);					//do -> Data to be written if I2C Slave 0 enabled -> Reset magnetometer
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_DO,0x01);					//do -> Data to be written if I2C Slave 0 enabled -> Reset magnetometer
 
-	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl ->
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl ->
 
-	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_CNTL1);		//reg
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_REG,AK8963_CNTL1);		//reg
 
-	SPI_Write(MPUREG_I2C_SLV0_DO,0x12);					//do	-> Magnetometer continous Measurement 16 bit
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_DO,0x12);					//do	-> Magnetometer continous Measurement 16 bit
 
-	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_CTRL,0x81);				//ctrl
 
 	MagID= Read_Magnetometer_Id();
 
 }
 
+void Init_LSM9DS1(){
+
+	SPI_Write(LSM9DS1_AG,CTRL_REG8,0x01);		//Reset Device
+	__delay_cycles(100000);
+	SPI_Write(LSM9DS1_AG,);		//
+	SPI_Write(LSM9DS1_AG,);		//
+}
 
 int Read_Temp(){
 
 	int rawData[2];
-	rawData[0]=(int)SPI_Read(MPUREG_TEMP_OUT_H);
-	rawData[1]=(int)SPI_Read(MPUREG_TEMP_OUT_L);
+	rawData[0]=(int)SPI_Read(MPU9250_AGM,MPUREG_TEMP_OUT_H);
+	rawData[1]=(int)SPI_Read(MPU9250_AGM,MPUREG_TEMP_OUT_L);
 
 	return ((rawData[0]<<8)|rawData[1]);
 }
@@ -160,12 +167,12 @@ int Read_Temp(){
 void Read_Accelorameter(int * destination){
 
 	int rawData[6];
-	rawData[0]=(int)SPI_Read(MPUREG_ACCEL_XOUT_H);
-	rawData[1]=(int)SPI_Read(MPUREG_ACCEL_XOUT_L);
-	rawData[2]=(int)SPI_Read(MPUREG_ACCEL_YOUT_H);
-	rawData[3]=(int)SPI_Read(MPUREG_ACCEL_YOUT_L);
-	rawData[4]=(int)SPI_Read(MPUREG_ACCEL_ZOUT_H);
-	rawData[5]=(int)SPI_Read(MPUREG_ACCEL_ZOUT_L);
+	rawData[0]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_XOUT_H);
+	rawData[1]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_XOUT_L);
+	rawData[2]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_YOUT_H);
+	rawData[3]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_YOUT_L);
+	rawData[4]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_ZOUT_H);
+	rawData[5]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_ZOUT_L);
 
 	destination[0]=(rawData[0]<<8)|rawData[1];
 	destination[1]=(rawData[2]<<8)|rawData[3];
@@ -175,12 +182,12 @@ void Read_Accelorameter(int * destination){
 void Read_Gyroscope(int * destination){
 
 	int rawData[6];
-	rawData[0]=(int)SPI_Read(MPUREG_GYRO_XOUT_H);
-	rawData[1]=(int)SPI_Read(MPUREG_GYRO_XOUT_L);
-	rawData[2]=(int)SPI_Read(MPUREG_GYRO_YOUT_H);
-	rawData[3]=(int)SPI_Read(MPUREG_GYRO_YOUT_L);
-	rawData[4]=(int)SPI_Read(MPUREG_GYRO_ZOUT_H);
-	rawData[5]=(int)SPI_Read(MPUREG_GYRO_ZOUT_L);
+	rawData[0]=(int)SPI_Read(MPU9250_AGM,MPUREG_GYRO_XOUT_H);
+	rawData[1]=(int)SPI_Read(MPU9250_AGM,MPUREG_GYRO_XOUT_L);
+	rawData[2]=(int)SPI_Read(MPU9250_AGM,MPUREG_GYRO_YOUT_H);
+	rawData[3]=(int)SPI_Read(MPU9250_AGM,MPUREG_GYRO_YOUT_L);
+	rawData[4]=(int)SPI_Read(MPU9250_AGM,MPUREG_GYRO_ZOUT_H);
+	rawData[5]=(int)SPI_Read(MPU9250_AGM,MPUREG_GYRO_ZOUT_L);
 
 	destination[0]=(rawData[0]<<8)|rawData[1];
 	destination[1]=(rawData[2]<<8)|rawData[3];
@@ -190,19 +197,19 @@ void Read_Gyroscope(int * destination){
 void Read_Magnetometer(int * destination){
 
 
-	SPI_Write(MPUREG_I2C_SLV0_ADDR,(AK8963_I2C_ADDR|0x80));			//Read from Magnetometer
-	SPI_Write(MPUREG_I2C_SLV0_REG,AK8963_HXL);						//Write Address of to read Mag register
-	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x87);							// 0x8- Read Data from AK8963 0x-7 Read 7 bytes
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_ADDR,(AK8963_I2C_ADDR|0x80));			//Read from Magnetometer
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_REG,AK8963_HXL);						//Write Address of to read Mag register
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_CTRL,0x87);							// 0x8- Read Data from AK8963 0x-7 Read 7 bytes
 
 
 
 	int rawData[6];
-	rawData[0]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_01);				//HXH
-	rawData[1]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_00);				//HXL
-	rawData[2]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_03);				//HYH
-	rawData[3]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_02);				//HYL
-	rawData[4]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_05);				//HZH
-	rawData[5]=(int)SPI_Read(MPUREG_EXT_SENS_DATA_04);				//HZL
+	rawData[0]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_01);				//HXH
+	rawData[1]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_00);				//HXL
+	rawData[2]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_03);				//HYH
+	rawData[3]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_02);				//HYL
+	rawData[4]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_05);				//HZH
+	rawData[5]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_04);				//HZL
 
 	destination[0]=(rawData[0]<<8)|rawData[1];
 	destination[1]=(rawData[2]<<8)|rawData[3];
@@ -215,47 +222,47 @@ int Read_Magnetometer_Id(){
 
 	_delay_cycles(100);
 
-	SPI_Write(MPUREG_I2C_SLV0_ADDR,(AK8963_I2C_ADDR|0x80));			//Read from Magnetometer
-	SPI_Write(MPUREG_I2C_SLV0_REG,0x00);				//Write Address of to read Mag register
-	SPI_Write(MPUREG_I2C_SLV0_CTRL,0x81);							// 0x8- Read Data from AK8963 0x-1 Read 1 bytes
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_ADDR,(AK8963_I2C_ADDR|0x80));			//Read from Magnetometer
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_REG,0x00);				//Write Address of to read Mag register
+	SPI_Write(MPU9250_AGM,MPUREG_I2C_SLV0_CTRL,0x81);							// 0x8- Read Data from AK8963 0x-1 Read 1 bytes
 
 	_delay_cycles(100);
 
-	id= SPI_Read(MPUREG_EXT_SENS_DATA_00);
+	id= SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_00);
 
 	return(id);
 }
 
 void Setup_Wake_on_Motion_Interrupt(){
 
-	SPI_Write(MPUREG_PWR_MGMT_1,0x00);			//Powermanagement sleep=0, cycle=0,
-	SPI_Write(MPUREG_PWR_MGMT_2,0x07);			//Disable Gyro
-	SPI_Write(MPUREG_ACCEL_CONFIG_2,0x09);		//Set ACC to 184HZ
+	SPI_Write(MPU9250_AGM,MPUREG_PWR_MGMT_1,0x00);			//Powermanagement sleep=0, cycle=0,
+	SPI_Write(MPU9250_AGM,MPUREG_PWR_MGMT_2,0x07);			//Disable Gyro
+	SPI_Write(MPU9250_AGM,MPUREG_ACCEL_CONFIG_2,0x09);		//Set ACC to 184HZ
 
-	SPI_Write(MPUREG_MOT_DETECT_CTRL,0xc0);		//Enable Motion Detection Logic
-	SPI_Write(MPUREG_MOT_THR,0x0f);				//Motion Threshold LSB -> 15
-	SPI_Write(MPUREG_LP_ACCEL_ODR,0x04);		//Wake up intervall 3.91HZ
-	SPI_Write(MPUREG_PWR_MGMT_1,0x20);			//Cycle =1;
+	SPI_Write(MPU9250_AGM,MPUREG_MOT_DETECT_CTRL,0xc0);		//Enable Motion Detection Logic
+	SPI_Write(MPU9250_AGM,MPUREG_MOT_THR,0x0f);				//Motion Threshold LSB -> 15
+	SPI_Write(MPU9250_AGM,MPUREG_LP_ACCEL_ODR,0x04);		//Wake up intervall 3.91HZ
+	SPI_Write(MPU9250_AGM,MPUREG_PWR_MGMT_1,0x20);			//Cycle =1;
 
-	SPI_Write(MPUREG_INT_ENABLE,0x40);			//Enable Motion Interrupt
+	SPI_Write(MPU9250_AGM,MPUREG_INT_ENABLE,0x40);			//Enable Motion Interrupt
 }
 
 
+void SPI_Write (char cs_signal,char reg, char data){
 
-void SPI_Write (char reg, char data){
-
-	SPI_Transceive(reg,data);
+	SPI_Transceive(cs_signal,reg,data);
 }
 
-char SPI_Read (char reg){
+char SPI_Read (char cs_signal, char reg){
 
 
-	return(SPI_Transceive((reg|0x80),0x55));
+	return(SPI_Transceive(cs_signal,(reg|0x80),0x55));
 }
 
-char SPI_Transceive(char reg,char data) {
+char SPI_Transceive(char cs_signal,char reg,char data) {
 
-	P1OUT &= (~BIT5); 								// Pin 1.5 High
+
+	P1OUT &= (~cs_signal); 							// Pin 1.5 High
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
 	UCA0TXBUF = reg; 								// Send variable "reg" over SPI to Slave
@@ -268,7 +275,7 @@ char SPI_Transceive(char reg,char data) {
 	received_ch = UCA0RXBUF;						// Store received data
 
 
-	P1OUT |= (BIT5); 								// Pin 1.5 Low
+	P1OUT |= (cs_signal); 							// Pin 1.5 Low
 
 	_delay_cycles(150);
 
@@ -280,5 +287,5 @@ __interrupt void Port_1(void){
 
 	P1OUT ^= BIT6;				//Toggle LED
 	P1IFG &= ~BIT3;				//Clear Interrupt Flag
-	SPI_Read(MPUREG_INT_STATUS);//Clear INterrupt MPU9250
+	SPI_Read(MPU9250_AGM,MPUREG_INT_STATUS);//Clear INterrupt MPU9250
 }

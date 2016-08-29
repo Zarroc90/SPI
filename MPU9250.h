@@ -199,5 +199,7 @@
 
 #define MPU9250T_85degC   ((float)0.002995177763f) // 0.002995177763 degC/LSB
 
+#define MPU9250_AGM				CS_0
+
 #endif /* MPU9250_H_ */
 

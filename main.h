@@ -10,6 +10,10 @@
 
 int test_0,test_1,test_2,test_3;
 
+#define CS_0 	BIT5
+#define CS_1	BIT6
+#define CS_2	BIT7
+
 int accelorameter_raw[3];
 int gyroscope_raw[3];
 int magnetometer_raw[3];
@@ -29,8 +33,8 @@ void Read_Gyroscope(int * destination);
 void Read_Magnetometer(int * destination);
 int Read_Magnetometer_Id();
 void Setup_Wake_on_Motion_Interrupt();
-char SPI_Transceive(char reg,char data);
-void SPI_Write (char reg, char data);
-char SPI_Read (char reg);
+char SPI_Transceive(char cs_signal,char reg,char data);
+void SPI_Write (char cs_signal,char reg, char data);
+char SPI_Read (char cs_signal,char reg);
 
 #endif /* MAIN_H_ */
