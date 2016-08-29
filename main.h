@@ -9,11 +9,22 @@
 #define MAIN_H_
 
 int test_0,test_1,test_2,test_3;
+volatile char received_ch = 0;
+
+enum sensor_type{
+	MPU9250,
+	LSM9DS1,
+	BMX055,
+	BMI160,
+};
+
+
 
 #define CS_0 	BIT5
 #define CS_1	BIT6
 #define CS_2	BIT7
 
+int sensor;
 int accelorameter_raw[3];
 int gyroscope_raw[3];
 int magnetometer_raw[3];
@@ -26,7 +37,9 @@ float ax,ay,az,gx,gy,gz,mx,my,mz;
 
 float temperature;
 
+void InitSPI();
 void Init_MPU9250();
+void Init_LSM9DS1();
 int Read_Temp();
 void Read_Accelorameter(int * destination);
 void Read_Gyroscope(int * destination);

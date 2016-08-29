@@ -96,7 +96,7 @@
 #define WHO_AM_I_M_RSP      0x3D
 
 #define LSM9DS1_AG			CS_0
-#define LSM9DS0_M			CS_1
+#define LSM9DS1_M			CS_1
 
 // accel_scale defines all possible FSR's of the accelerometer:
 enum accel_scale
@@ -112,7 +112,7 @@ enum gyro_scale
 {
 	G_SCALE_245DPS,		// 00:  245 degrees per second
 	G_SCALE_500DPS,		// 01:  500 dps
-	G_SCALE_2000DPS,	// 11:  2000 dps
+	G_SCALE_2000DPS=3,	// 11:  2000 dps
 };
 
 // mag_scale defines all possible FSR's of the magnetometer:
