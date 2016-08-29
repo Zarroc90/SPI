@@ -2,6 +2,7 @@
 #include <main.h>
 #include <MPU9250.h>
 #include <LSM9DS1.h>
+#include <BMX055.h>
 
 
 
@@ -21,6 +22,11 @@ int main(void) {
 		case LSM9DS1:
 		{
 			Init_LSM9DS1();
+			break;
+		}
+		case BMX055:
+		{
+			Init_BMX055();
 			break;
 		}
 		default:
@@ -201,6 +207,10 @@ void Init_LSM9DS1(){
 	SPI_Write(LSM9DS1_M,CTRL_REG3_M,0x80);										//Mag i2C disable + Contionus mode
 	SPI_Write(LSM9DS1_M,CTRL_REG1_M,0x7C);										//Magnetometer UHP-Mode+80HZ ODR
 	SPI_Write(LSM9DS1_M,CTRL_REG2_M,(M_SCALE_16GS<<5));
+
+}
+
+void Init_BMX055(){
 
 }
 
