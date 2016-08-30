@@ -170,12 +170,16 @@
 #define BMM050_DIG_XY2            0x70
 #define BMM050_DIG_XY1            0x71
 
+#define BMX055_A				CS_0
+#define BMX055_G				CS_1
+#define BMX055_M				CS_2
+
 // Using the Teensy Mini Add-On board, SDO1 = SDO2 = CSB3 = GND as designed
 // Seven-bit device addresses are ACC = 0x18, GYRO = 0x68, MAG = 0x10
 #define BMX055_ACC_ADDRESS  0x18   // Address of BMX055 accelerometer
 #define BMX055_GYRO_ADDRESS 0x68   // Address of BMX055 gyroscope
 #define BMX055_MAG_ADDRESS  0x10   // Address of BMX055 magnetometer
-#define MS5637_ADDRESS      0x76   // Address of altimeter
+
 
 #define SerialDebug true  // set to true to get Serial output for debugging
 
@@ -186,16 +190,16 @@
 #define AFS_8G  0x08
 #define AFS_16G 0x0C
 
-enum ACCBW {    // define BMX055 accelerometer bandwidths
-  ABW_8Hz,      // 7.81 Hz,  64 ms update time
-  ABW_16Hz,     // 15.63 Hz, 32 ms update time
-  ABW_31Hz,     // 31.25 Hz, 16 ms update time
-  ABW_63Hz,     // 62.5  Hz,  8 ms update time
-  ABW_125Hz,    // 125   Hz,  4 ms update time
-  ABW_250Hz,    // 250   Hz,  2 ms update time
-  ABW_500Hz,    // 500   Hz,  1 ms update time
-  ABW_100Hz     // 1000  Hz,  0.5 ms update time
-};
+
+#define ABW_8Hz 0x08
+#define ABW_16Hz 0x09
+#define ABW_31Hz 0x0A
+#define ABW_63Hz 0x0B
+#define ABW_125Hz 0x0C
+#define ABW_250Hz 0x0D
+#define ABW_500Hz 0x0E
+#define ABW_1000Hz 0x0F
+
 
 enum Gscale {
   GFS_2000DPS = 0,

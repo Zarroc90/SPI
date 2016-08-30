@@ -8,7 +8,7 @@
 
 int main(void) {
 
-	sensor=LSM9DS1;
+	sensor=BMX055;
 
 	InitSPI();
 
@@ -76,6 +76,24 @@ int main(void) {
 					temperature = ((float)Read_Temp()/16+ 25.0);
 					break;
 				}
+				case BMX055:
+				{
+					whoami=SPI_Read(BMX055_A,0x00);								//0xFA
+					Read_Accelorameter(accelorameter_raw);
+					ax=accelorameter_raw[0]*aRes;
+					ay=accelorameter_raw[1]*aRes;
+					az=accelorameter_raw[2]*aRes;
+					/*Read_Gyroscope(gyroscope_raw);
+					gx=gyroscope_raw[0]*gRes;
+					gy=gyroscope_raw[1]*gRes;
+					gz=gyroscope_raw[2]*gRes;
+					Read_Magnetometer(magnetometer_raw);
+					mx=magnetometer_raw[0]*0.58;
+					my=magnetometer_raw[1]*0.58;
+					mz=magnetometer_raw[2]*0.58;
+					temperature = ((float)Read_Temp()/16+ 25.0);*/
+					break;
+				}
 				default:
 					break;
 			}
@@ -94,9 +112,9 @@ void InitSPI(){
 	//--------------Init SPI ----------------------------------------------------------------------
 
 		// Sensor			MPU9250			LSM9DS1			BMX055			BMI160
-		//Port 1.7	CS
-		//Port 1.6	CS							M
-		//Port 1.5  CS		AGM					AG
+		//Port 1.7	CS											M
+		//Port 1.6	CS							M				G
+		//Port 1.5  CS		AGM					AG				A
 		//Port 1.4	CLK
 		//Port 1.3  Int
 		//Port 1.2	MOSI
@@ -212,6 +230,14 @@ void Init_LSM9DS1(){
 
 void Init_BMX055(){
 
+	SPI_Write(BMX055_A,BMX055_ACC_BGW_SOFTRESET,0xB6);
+	SPI_Write(BMX055_G,BMX055_GYRO_BGW_SOFTRESET,0xB6);
+	SPI_Write(BMX055_M,BMX055_MAG_PWR_CNTL1,0x82);
+	__delay_cycles(100000);
+	SPI_Write(BMX055_A,BMX055_ACC_PMU_RANGE,AFS_4G);			//Set ACC
+	SPI_Write(BMX055_A,BMX055_ACC_PMU_BW,ABW_8Hz);
+
+
 }
 
 int Read_Temp(){
@@ -262,6 +288,16 @@ void Read_Accelorameter(int * destination){
 			rawData[3]=(int)SPI_Read(LSM9DS1_AG,OUT_Y_L_XL);
 			rawData[4]=(int)SPI_Read(LSM9DS1_AG,OUT_Z_H_XL);
 			rawData[5]=(int)SPI_Read(LSM9DS1_AG,OUT_Z_L_XL);
+			break;
+		}
+		case BMX055:
+		{
+			rawData[0]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_X_MSB);
+			rawData[1]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_X_LSB);
+			rawData[2]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Y_MSB);
+			rawData[3]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Y_LSB);
+			rawData[4]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Z_MSB);
+			rawData[5]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Z_LSB);
 			break;
 		}
 		default:
