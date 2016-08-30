@@ -78,28 +78,31 @@ int main(void) {
 				}
 				case BMX055:
 				{
-					whoami=SPI_Read(BMX055_A,0x00);								//0xFA
+					//whoami=SPI_Read(BMX055_A,0x00);								//0xFA
+					whoami=SPI_Read(BMX055_M,0x40);									//0x32
 					Read_Accelorameter(accelorameter_raw);
 					ax=accelorameter_raw[0]*aRes;
 					ay=accelorameter_raw[1]*aRes;
 					az=accelorameter_raw[2]*aRes;
-					/*Read_Gyroscope(gyroscope_raw);
+					Read_Gyroscope(gyroscope_raw);
 					gx=gyroscope_raw[0]*gRes;
 					gy=gyroscope_raw[1]*gRes;
 					gz=gyroscope_raw[2]*gRes;
+					test_0=SPI_Read(BMX055_M,0x4e);
+					test_1=SPI_Read(BMX055_M,BMX055_MAG_PWR_CNTL1);
+					test_2=SPI_Read(BMX055_M,0x4c);
 					Read_Magnetometer(magnetometer_raw);
-					mx=magnetometer_raw[0]*0.58;
-					my=magnetometer_raw[1]*0.58;
-					mz=magnetometer_raw[2]*0.58;
-					temperature = ((float)Read_Temp()/16+ 25.0);*/
+					mx=magnetometer_raw[0]*0.079;
+					my=magnetometer_raw[1]*0.079;
+					mz=magnetometer_raw[2]*0.152;
+					temperature = ((float)Read_Temp()/2 + 23.0);
 					break;
 				}
 				default:
 					break;
 			}
 
-	//-------BMX055------------------------------------------------------------------
-		//whoami=SPI_Read(CS_0,0x00);							//0xFA
+
 	//-------BMI160------------------------------------------------------------------
 		//whoami=SPI_Read(CS_0,0x00);							//0xD1
 
@@ -234,8 +237,17 @@ void Init_BMX055(){
 	SPI_Write(BMX055_G,BMX055_GYRO_BGW_SOFTRESET,0xB6);
 	SPI_Write(BMX055_M,BMX055_MAG_PWR_CNTL1,0x82);
 	__delay_cycles(100000);
-	SPI_Write(BMX055_A,BMX055_ACC_PMU_RANGE,AFS_4G);			//Set ACC
+	SPI_Write(BMX055_A,BMX055_ACC_PMU_RANGE,AFS_4G);
 	SPI_Write(BMX055_A,BMX055_ACC_PMU_BW,ABW_8Hz);
+	SPI_Write(BMX055_G,BMX055_GYRO_RANGE,GFS_2000DPS);
+	SPI_Write(BMX055_G,BMX055_GYRO_BW,(0x80|G_2000Hz230Hz));
+	SPI_Write(BMX055_M,BMX055_MAG_PWR_CNTL1,0x01);
+	__delay_cycles(5000);
+	SPI_Write(BMX055_M,BMX055_MAG_PWR_CNTL2,0x00);
+	SPI_Write(BMX055_M,BMX055_MAG_REP_XY,0x04);								//Rep x/y 	=9  -> 2 x 4 +1 =9
+	SPI_Write(BMX055_M,BMX055_MAG_REP_Z,0x0E);								//Rep z 	=15 -> 14 +1 =15
+
+
 
 
 }
@@ -257,7 +269,12 @@ int Read_Temp(){
 			rawData[1]=(int)SPI_Read(LSM9DS1_AG,OUT_TEMP_L);
 			break;
 		}
-
+		case BMX055:
+				{
+					rawData[0]=0;
+					rawData[1]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_TEMP);
+					break;
+				}
 		default:
 			break;
 	}
@@ -334,6 +351,16 @@ void Read_Gyroscope(int * destination){
 			rawData[5]=(int)SPI_Read(LSM9DS1_AG,OUT_Z_L_G);
 			break;
 		}
+		case BMX055:
+		{
+			rawData[0]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_X_MSB);
+			rawData[1]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_X_LSB);
+			rawData[2]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_Y_MSB);
+			rawData[3]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_Y_LSB);
+			rawData[4]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_Z_MSB);
+			rawData[5]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_Z_LSB);
+			break;
+		}
 		default:
 			break;
 	}
@@ -361,6 +388,10 @@ void Read_Magnetometer(int * destination){
 			rawData[3]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_02);				//HYL
 			rawData[4]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_05);				//HZH
 			rawData[5]=(int)SPI_Read(MPU9250_AGM,MPUREG_EXT_SENS_DATA_04);				//HZL
+
+			destination[0]=(rawData[0]<<8)|rawData[1];
+			destination[1]=(rawData[2]<<8)|rawData[3];
+			destination[2]=(rawData[4]<<8)|rawData[5];
 			break;
 		}
 		case LSM9DS1:
@@ -371,15 +402,31 @@ void Read_Magnetometer(int * destination){
 			rawData[3]=(int)SPI_Read(LSM9DS1_M,OUT_Y_L_M);				//HYL
 			rawData[4]=(int)SPI_Read(LSM9DS1_M,OUT_Z_H_M);				//HZH
 			rawData[5]=(int)SPI_Read(LSM9DS1_M,OUT_Z_L_M);				//HZL
+
+			destination[0]=(rawData[0]<<8)|rawData[1];
+			destination[1]=(rawData[2]<<8)|rawData[3];
+			destination[2]=(rawData[4]<<8)|rawData[5];
+			break;
+		}
+		case BMX055:
+		{
+			rawData[0]=(int)SPI_Read(BMX055_M,BMX055_MAG_XOUT_MSB);				//HXH
+			rawData[1]=((int)SPI_Read(BMX055_M,BMX055_MAG_XOUT_LSB)>>3);				//HXL
+			rawData[2]=(int)SPI_Read(BMX055_M,BMX055_MAG_YOUT_MSB);				//HYH
+			rawData[3]=((int)SPI_Read(BMX055_M,BMX055_MAG_YOUT_LSB)>>3);				//HYL
+			rawData[4]=(int)SPI_Read(BMX055_M,BMX055_MAG_ZOUT_MSB);				//HZH
+			rawData[5]=((int)SPI_Read(BMX055_M,BMX055_MAG_ZOUT_LSB)>>1);				//HZL
+
+			destination[0]=(rawData[0]<<5)|rawData[1];
+			destination[1]=(rawData[2]<<5)|rawData[3];
+			destination[2]=(rawData[4]<<7)|rawData[5];
 			break;
 		}
 		default:
 			break;
 	}
 
-	destination[0]=(rawData[0]<<8)|rawData[1];
-	destination[1]=(rawData[2]<<8)|rawData[3];
-	destination[2]=(rawData[4]<<8)|rawData[5];
+
 }
 
 int Read_Magnetometer_Id(){
