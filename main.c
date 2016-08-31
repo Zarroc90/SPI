@@ -29,6 +29,11 @@ int main(void) {
 			Init_BMX055();
 			break;
 		}
+		case BMI160:
+		{
+			Init_BMI160();
+			break;
+		}
 		default:
 			break;
 	}
