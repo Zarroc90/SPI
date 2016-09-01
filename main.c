@@ -1,16 +1,18 @@
-#include <msp430.h> 
 #include <main.h>
-#include <MPU9250.h>
-#include <LSM9DS1.h>
-#include <BMX055.h>
-
 
 
 int main(void) {
 
 	sensor=BMX055;
+	received_ch=0;
+	aRes = 4.0/32768.0;
+	gRes = 2000.0/32768.0;
+	mRes = 10.0 * 4219.0/32760.0;
 
 	InitSPI();
+	InitDisplay();
+	lcdInitialise(LCD_ORIENTATION0);
+	lcdLine(1,1,100,100,0xffff);
 
 	switch (sensor) {
 		case MPU9250:
@@ -31,7 +33,7 @@ int main(void) {
 		}
 		case BMI160:
 		{
-			Init_BMI160();
+//			Init_BMI160();
 			break;
 		}
 		default:
@@ -119,37 +121,37 @@ int main(void) {
 void InitSPI(){
 	//--------------Init SPI ----------------------------------------------------------------------
 
-		// Sensor			MPU9250			LSM9DS1			BMX055			BMI160
-		//Port 1.7	CS											M
-		//Port 1.6	CS							M				G
-		//Port 1.5  CS		AGM					AG				A
-		//Port 1.4	CLK
-		//Port 1.3  Int
-		//Port 1.2	MOSI
-		//Port 1.1	MISO
+	// Sensor			MPU9250			LSM9DS1			BMX055			BMI160
+	//Port 1.7	CS											M
+	//Port 1.6	CS							M				G
+	//Port 1.5  CS		AGM					AG				A
+	//Port 1.4	CLK
+	//Port 1.3  Int
+	//Port 1.2	MOSI
+	//Port 1.1	MISO
 
-		WDTCTL = WDTPW + WDTHOLD; 								// Stop WDT
+	WDTCTL = WDTPW + WDTHOLD; 								// Stop WDT
 
-		P1OUT |= BIT5 + BIT6 + BIT7;							//Port 1.5,1.6,1.7 as High
-		P1DIR |= BIT5 + BIT6 + BIT7;							//Port 1.5,1.6,1.7 as Output
-		P1SEL = BIT1 | BIT2 | BIT4;								//Port Bit 1,2,4 as SPI Interface
-		P1SEL2 = BIT1 | BIT2 | BIT4;							//Port Bit 1,2,4 as SPI Interfasce
+	P1OUT |= BIT5 + BIT6 + BIT7;							//Port 1.5,1.6,1.7 as High
+	P1DIR |= BIT5 + BIT6 + BIT7;							//Port 1.5,1.6,1.7 as Output
+	P1SEL = BIT1 | BIT2 | BIT4;								//Port Bit 1,2,4 as SPI Interface
+	P1SEL2 = BIT1 | BIT2 | BIT4;							//Port Bit 1,2,4 as SPI Interfasce
 
-		UCA0CTL1 = UCSWRST;
-		UCA0CTL0 |= /*UCCKPH +*/ UCCKPL + UCMSB + UCMST + UCSYNC; 	// 3-pin, 8-bit SPI master
-		UCA0CTL1 |= UCSSEL_2; 									// SMCLK
-		UCA0BR0 |= 0x02; 										// /2
-		UCA0BR1 = 0; 											//
-		UCA0MCTL = 0; 											// No modulation
-		UCA0CTL1 &= ~UCSWRST; 									// **Initialize USCI state machine**
+	UCA0CTL1 = UCSWRST;
+	UCA0CTL0 |= /*UCCKPH +*/ UCCKPL + UCMSB + UCMST + UCSYNC; 	// 3-pin, 8-bit SPI master
+	UCA0CTL1 |= UCSSEL_2; 									// SMCLK
+	UCA0BR0 |= 0x02; 										// /2
+	UCA0BR1 = 0; 											//
+	UCA0MCTL = 0; 											// No modulation
+	UCA0CTL1 &= ~UCSWRST; 									// **Initialize USCI state machine**
 
 
-		//P1DIR |= BIT6;											//LED2 as OUtput
-		//P1OUT &= ~BIT6;											//LED2 as off
-		P1IE |= BIT3;											//P1.3 Interrupt enabled
-		P1IES &= ~BIT3;											//Interrupt direction from low to high
-		P1IFG &= ~BIT3;											//P1.3 IFG is cleared
-		//__enable_interrupt();
+	//P1DIR |= BIT6;											//LED2 as OUtput
+	//P1OUT &= ~BIT6;											//LED2 as off
+	P1IE |= BIT3;											//P1.3 Interrupt enabled
+	P1IES &= ~BIT3;											//Interrupt direction from low to high
+	P1IFG &= ~BIT3;											//P1.3 IFG is cleared
+	//__enable_interrupt();
 
 	//----------------Init SPI End----------------------------------------------------------------------
 
@@ -172,6 +174,22 @@ void InitSPI(){
 		 * 		*/
 }
 
+void InitDisplay(){
+
+	/**
+	 * 2.0		Read "L" Write "H"
+	 * 2.1		Reset
+	 * 2.2		CS
+	 */
+
+	P2OUT |= BIT0 + BIT1 + BIT2;							//Port 2.0,2.1,2.2 as High
+	P2DIR |= BIT0 + BIT1 + BIT2;							//Port 2.0,2.1,2.2 as Output
+
+	P2OUT &= ~(LCD_RESET);									//Reset auf Low
+	__delay_cycles(100000);
+	P2OUT |= LCD_RESET;										//Rest High
+	__delay_cycles(200000);
+}
 
 void Init_MPU9250(){
 
@@ -256,6 +274,8 @@ void Init_BMX055(){
 
 
 }
+
+
 
 int Read_Temp(){
 
@@ -480,7 +500,8 @@ char SPI_Read (char cs_signal, char reg){
 char SPI_Transceive(char cs_signal,char reg,char data) {
 
 
-	P1OUT &= (~cs_signal); 							// Pin 1.5 High
+
+	P1OUT &= (~cs_signal); 							// Pin 1.5 LOW
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
 	UCA0TXBUF = reg; 								// Send variable "reg" over SPI to Slave
@@ -493,12 +514,14 @@ char SPI_Transceive(char cs_signal,char reg,char data) {
 	received_ch = UCA0RXBUF;						// Store received data
 
 
-	P1OUT |= (cs_signal); 							// Pin 1.5 Low
+	P1OUT |= (cs_signal); 							// Pin 1.5 High
 
 	_delay_cycles(150);
 
 	return (received_ch);
 }
+
+
 
 #pragma vector=PORT1_VECTOR
 __interrupt void Port_1(void){

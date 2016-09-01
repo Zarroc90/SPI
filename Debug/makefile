@@ -10,6 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./ili9163lcd.obj" \
 "./main.obj" \
 "../lnk_msp430g2553.cmd" \
 $(GEN_CMDS__FLAG) \
@@ -139,7 +140,7 @@ all: SPI.out
 SPI.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MSP430 Linker'
-	"D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/bin/cl430" -vmsp --use_hw_mpy=none --advice:power=all -g --define=__MSP430G2553__ --diag_wrap=off --display_error_number --diag_warning=225 --printf_support=minimal -z -m"SPI.map" --stack_size=80 --heap_size=80 -i"D:/Software/TI/ccsv6/ccs_base/msp430/include" -i"D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/lib" -i"D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include" --reread_libs --display_error_number --warn_sections --diag_wrap=off --xml_link_info="SPI_linkInfo.xml" --use_hw_mpy=none --rom_model -o "SPI.out" $(ORDERED_OBJS)
+	"D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/bin/cl430" -vmsp --use_hw_mpy=none --advice:power=all -g --define=__MSP430G2553__ --diag_warning=225 --diag_wrap=off --display_error_number --printf_support=minimal -z -m"SPI.map" --stack_size=80 --heap_size=80 -i"D:/Software/TI/ccsv6/ccs_base/msp430/include" -i"D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/lib" -i"D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include" --reread_libs --warn_sections --display_error_number --diag_wrap=off --xml_link_info="SPI_linkInfo.xml" --use_hw_mpy=none --rom_model -o "SPI.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -152,8 +153,8 @@ SPI.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "main.d" 
-	-$(RM) "main.obj" 
+	-$(RM) "ili9163lcd.d" "main.d" 
+	-$(RM) "ili9163lcd.obj" "main.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 
