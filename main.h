@@ -14,6 +14,8 @@
 #include <LSM9DS1.h>
 #include <BMX055.h>
 #include <ili9163lcd.h>
+#include <stdio.h>
+
 
 
 

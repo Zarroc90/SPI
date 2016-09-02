@@ -12,12 +12,16 @@ int main(void) {
 
 	InitSPI();
 	InitDisplay();
+
 	lcdInitialise(LCD_ORIENTATION0);
+	lcdClearDisplay(decodeRgbValue(255,255,255));
 
-
-	lcdClearDisplay(decodeRgbValue(0,0,255));
-
-	lcdLine(35,35,100,100,(decodeRgbValue(0,0,255)));
+	lcdPutS("ax=       mG",(lcdTextX(1)),(lcdTextY(1)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("ay=       mG",(lcdTextX(1)),(lcdTextY(3)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("az=       mG",(lcdTextX(1)),(lcdTextY(5)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gx=       mG",(lcdTextX(1)),(lcdTextY(7)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gy=       mG",(lcdTextX(1)),(lcdTextY(9)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gz=       mG",(lcdTextX(1)),(lcdTextY(11)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 
 	switch (sensor) {
 		case MPU9250:
@@ -119,6 +123,24 @@ int main(void) {
 		//whoami=SPI_Read(CS_0,0x00);							//0xD1
 
 
+
+		char str[5];
+		sprintf(str,"%d",((int) (ax*10*1000)));
+		lcdPutS(str,(lcdTextX(5)),(lcdTextY(1)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+		sprintf(str,"%d",((int) (ay*10000)));
+		lcdPutS(str,(lcdTextX(5)),(lcdTextY(3)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+		sprintf(str,"%d",((int) (az*10000)));
+		lcdPutS(str,(lcdTextX(5)),(lcdTextY(5)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+
+		sprintf(str,"%d",((int) gx));
+		lcdPutS(str,(lcdTextX(5)),(lcdTextY(7)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+		sprintf(str,"%d",((int) gy));
+		lcdPutS(str,(lcdTextX(5)),(lcdTextY(9)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+		sprintf(str,"%d",((int) gz));
+		lcdPutS(str,(lcdTextX(5)),(lcdTextY(11)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+
+
+
 	}
 }
 
@@ -189,8 +211,10 @@ void InitDisplay(){
 	 * 2.4		MOSI
 	 */
 
-	P2OUT |= BIT0 + BIT1 + BIT2 + BIT3 + BIT4;							//Port 2.0,2.1,2.2 as High
+	P2OUT |= BIT0 + BIT1 + BIT2 + BIT4;							//Port 2.0,2.1,2.2 as High
+	P2OUT &= ~BIT3;
 	P2DIR |= BIT0 + BIT1 + BIT2 + BIT3 + BIT4;							//Port 2.0,2.1,2.2 as Output
+
 
 	P2OUT &= ~(LCD_RESET);									//Reset auf Low
 	__delay_cycles(100000);

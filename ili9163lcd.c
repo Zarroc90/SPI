@@ -299,106 +299,51 @@ const unsigned char font5x8[][6] = {
 
 void lcdWriteCommand(int address)
 {
-	/*UCA0CTL0 &=  ~(UCCKPL);
+	UCA0CTL0 &=  ~(UCCKPL);
+	UCA0CTL0 |= UCCKPH;
 
-	P2OUT &= (~CS_3); 							// Pin 2.2 LOW
-	P2OUT |= LCD_A0;
-
-	/*P1SEL &= ~BIT2;
-	P1SEL2 &= ~BIT2;
-	P1SEL &= ~BIT4;
-	P1SEL2 &= ~BIT4;
-
-	__delay_cycles(1000);
-
-
-
-	P1OUT &= ~(BIT2);
-	P1OUT |= (BIT4);							//Clk High
-	__delay_cycles(10);
-	P1OUT &= ~(BIT4);							//CLK Low
-
-	P1SEL |= (BIT4);
-	P1SEL2 |= (BIT4);
-	P1SEL |= (BIT2);
-	P1SEL2 |= (BIT2);
-
-
-	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
-	UCA0TXBUF = 0x00; 								// Send variable "reg" over SPI to Slave
-	while (!(IFG2 & UCA0RXIFG)); 					// USCI_A0 RX Received?
-	received_ch = UCA0RXBUF;						// Store received data
+	P2OUT &= (~LCD_CS); 							// Pin 2.2 LOW
+	P2OUT &= ~LCD_A0;
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
 	UCA0TXBUF = address; 								// Send variable "reg" over SPI to Slave
 	while (!(IFG2 & UCA0RXIFG)); 					// USCI_A0 RX Received?
 	received_ch = UCA0RXBUF;						// Store received data
 
-	P2OUT |= (CS_3); 							// Pin 2.2 High
+	P2OUT |= (LCD_CS); 							// Pin 2.2 High
 
-	UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC;*/
+	UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC;
+	UCA0CTL0 &= ~UCCKPH;
 
-	int i;
-
-	P2OUT &= ~LCD_CS;
-	P2OUT |= LCD_A0;
-	for (i = 0; i < 8; ++i) {
-		if (address & 128) {
-			P2OUT |= LCD_SDA;
-		} else {
-			P2OUT &= ~LCD_SDA;
-		}
-		P2OUT |= LCD_SCK;
-		address <<=1;
-		P2OUT &= ~LCD_SCK;
 	}
-
-	__delay_cycles(100);
-	P2OUT |= LCD_CS;
-
-}
 
 void lcdWriteParameter(int parameter)
 {  
-	/*UCA0CTL0 &=  ~(UCCKPL);
+	UCA0CTL0 &=  ~(UCCKPL);
+	UCA0CTL0 |= UCCKPH;
 
-	P2OUT &= (~CS_3); 							// Pin 2.2 LOW
-	P2OUT &= ~LCD_A0;
+	P2OUT &= (~LCD_CS); 							// Pin 2.2 LOW
+	P2OUT |= LCD_A0;
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
 	UCA0TXBUF = parameter; 								// Send variable "reg" over SPI to Slave
 	while (!(IFG2 & UCA0RXIFG)); 					// USCI_A0 RX Received?
 	received_ch = UCA0RXBUF;						// Store received data
 
-	P2OUT |= (CS_3); 							// Pin 2.2 High
+	P2OUT |= (LCD_CS); 							// Pin 2.2 High
 
-	UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC;*/
+	UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC;
+	UCA0CTL0 &= ~UCCKPH;
 
 
-	int i;
-
-	P2OUT &= ~LCD_CS;
-	P2OUT &= ~LCD_A0;
-	for (i = 0; i < 8; ++i) {
-		if (parameter & 128) {
-			P2OUT |= LCD_SDA;
-		} else {
-			P2OUT &= ~LCD_SDA;
-		}
-		P2OUT |= LCD_SCK;
-		parameter <<=1;
-		P2OUT &= ~LCD_SCK;
-	}
-
-	__delay_cycles(100);
-	P2OUT |= LCD_CS;
 }
  
 void lcdWriteData(int dataByte1, int dataByte2)
 {  
-	/*UCA0CTL0 &=  ~(UCCKPL);
+	UCA0CTL0 &=  ~(UCCKPL);
+	UCA0CTL0 |= UCCKPH;
 
-	P1OUT &= (~CS_3); 							// Pin 2.2 LOW
+	P2OUT &= ~(LCD_CS); 							// Pin 2.2 LOW
 	P2OUT |= LCD_A0;
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
@@ -412,40 +357,10 @@ void lcdWriteData(int dataByte1, int dataByte2)
 	received_ch = UCA0RXBUF;						// Store received data
 
 
-	P1OUT |= (CS_3); 							// Pin 2.2 High
+	P2OUT |= (LCD_CS); 							// Pin 2.2 High
 
-	UCA0CTL0 |=  UCCKPL + UCMSB + UCMST + UCSYNC;*/
-
-	int i;
-
-	P2OUT &= ~LCD_CS;
-	P2OUT |= LCD_A0;
-	for (i = 0; i < 8; ++i) {
-		if (dataByte1 & 128) {
-			P2OUT |= LCD_SDA;
-		} else {
-			P2OUT &= ~LCD_SDA;
-		}
-		P2OUT |= LCD_SCK;
-		dataByte1 <<=1;
-		P2OUT &= ~LCD_SCK;
-	}
-
-	__delay_cycles(100);
-	for (i = 0; i < 8; ++i) {
-			if (dataByte2 & 128) {
-				P2OUT |= LCD_SDA;
-			} else {
-				P2OUT &= ~LCD_SDA;
-			}
-			P2OUT |= LCD_SCK;
-			dataByte2 <<=1;
-			P2OUT &= ~LCD_SCK;
-		}
-
-		__delay_cycles(100);
-
-	P2OUT |= LCD_CS;
+	UCA0CTL0 |=  UCCKPL + UCMSB + UCMST + UCSYNC;
+	UCA0CTL0 &= ~UCCKPH;
 
 }
 
