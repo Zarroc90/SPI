@@ -28,9 +28,11 @@
 #define ILI9163LCD_H_
 
 // Definitions for control lines (port C)
-#define LCD_RD		BIT0
+#define LCD_A0		BIT0
 #define LCD_CS		BIT2
 #define LCD_RESET	BIT1
+#define LCD_SCK		BIT3
+#define LCD_SDA		BIT4
 
 // Screen orientation defines:
 // 0 = Ribbon at top

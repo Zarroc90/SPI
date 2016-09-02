@@ -299,12 +299,12 @@ const unsigned char font5x8[][6] = {
 
 void lcdWriteCommand(int address)
 {
-	UCA0CTL0 &=  ~(UCCKPL);
+	/*UCA0CTL0 &=  ~(UCCKPL);
 
-	/*P2OUT &= (~CS_3); 							// Pin 2.2 LOW
+	P2OUT &= (~CS_3); 							// Pin 2.2 LOW
+	P2OUT |= LCD_A0;
 
-
-	P1SEL &= ~BIT2;
+	/*P1SEL &= ~BIT2;
 	P1SEL2 &= ~BIT2;
 	P1SEL &= ~BIT4;
 	P1SEL2 &= ~BIT4;
@@ -321,7 +321,7 @@ void lcdWriteCommand(int address)
 	P1SEL |= (BIT4);
 	P1SEL2 |= (BIT4);
 	P1SEL |= (BIT2);
-	P1SEL2 |= (BIT2);*/
+	P1SEL2 |= (BIT2);
 
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
@@ -336,14 +336,34 @@ void lcdWriteCommand(int address)
 
 	P2OUT |= (CS_3); 							// Pin 2.2 High
 
-	UCA0CTL0 |= /*UCCKPH +*/ UCCKPL + UCMSB + UCMST + UCSYNC;
+	UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC;*/
+
+	int i;
+
+	P2OUT &= ~LCD_CS;
+	P2OUT |= LCD_A0;
+	for (i = 0; i < 8; ++i) {
+		if (address & 128) {
+			P2OUT |= LCD_SDA;
+		} else {
+			P2OUT &= ~LCD_SDA;
+		}
+		P2OUT |= LCD_SCK;
+		address <<=1;
+		P2OUT &= ~LCD_SCK;
+	}
+
+	__delay_cycles(100);
+	P2OUT |= LCD_CS;
+
 }
 
 void lcdWriteParameter(int parameter)
 {  
-	UCA0CTL0 &=  ~(UCCKPL);
+	/*UCA0CTL0 &=  ~(UCCKPL);
 
 	P2OUT &= (~CS_3); 							// Pin 2.2 LOW
+	P2OUT &= ~LCD_A0;
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
 	UCA0TXBUF = parameter; 								// Send variable "reg" over SPI to Slave
@@ -352,14 +372,34 @@ void lcdWriteParameter(int parameter)
 
 	P2OUT |= (CS_3); 							// Pin 2.2 High
 
-	UCA0CTL0 |= /*UCCKPH +*/ UCCKPL + UCMSB + UCMST + UCSYNC;
+	UCA0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC;*/
+
+
+	int i;
+
+	P2OUT &= ~LCD_CS;
+	P2OUT &= ~LCD_A0;
+	for (i = 0; i < 8; ++i) {
+		if (parameter & 128) {
+			P2OUT |= LCD_SDA;
+		} else {
+			P2OUT &= ~LCD_SDA;
+		}
+		P2OUT |= LCD_SCK;
+		parameter <<=1;
+		P2OUT &= ~LCD_SCK;
+	}
+
+	__delay_cycles(100);
+	P2OUT |= LCD_CS;
 }
  
 void lcdWriteData(int dataByte1, int dataByte2)
 {  
-	UCA0CTL0 &=  ~(UCCKPL);
+	/*UCA0CTL0 &=  ~(UCCKPL);
 
 	P1OUT &= (~CS_3); 							// Pin 2.2 LOW
+	P2OUT |= LCD_A0;
 
 	while (!(IFG2 & UCA0TXIFG)); 					// USCI_A0 TX buffer ready?
 	UCA0TXBUF = dataByte1; 								// Send variable "reg" over SPI to Slave
@@ -374,14 +414,50 @@ void lcdWriteData(int dataByte1, int dataByte2)
 
 	P1OUT |= (CS_3); 							// Pin 2.2 High
 
-	UCA0CTL0 |= /*UCCKPH +*/ UCCKPL + UCMSB + UCMST + UCSYNC;
+	UCA0CTL0 |=  UCCKPL + UCMSB + UCMST + UCSYNC;*/
+
+	int i;
+
+	P2OUT &= ~LCD_CS;
+	P2OUT |= LCD_A0;
+	for (i = 0; i < 8; ++i) {
+		if (dataByte1 & 128) {
+			P2OUT |= LCD_SDA;
+		} else {
+			P2OUT &= ~LCD_SDA;
+		}
+		P2OUT |= LCD_SCK;
+		dataByte1 <<=1;
+		P2OUT &= ~LCD_SCK;
+	}
+
+	__delay_cycles(100);
+	for (i = 0; i < 8; ++i) {
+			if (dataByte2 & 128) {
+				P2OUT |= LCD_SDA;
+			} else {
+				P2OUT &= ~LCD_SDA;
+			}
+			P2OUT |= LCD_SCK;
+			dataByte2 <<=1;
+			P2OUT &= ~LCD_SCK;
+		}
+
+		__delay_cycles(100);
+
+	P2OUT |= LCD_CS;
 
 }
 
 // Initialise the display with the require screen orientation
 void lcdInitialise(int orientation)
 {   
-		
+
+	P2OUT |= LCD_CS;
+	P2OUT &= ~LCD_SCK;
+	P2OUT |= LCD_RESET;
+
+
     lcdWriteCommand(EXIT_SLEEP_MODE);
     __delay_cycles(200000); // Wait for the screen to wake up
     
@@ -436,14 +512,14 @@ void lcdInitialise(int orientation)
     lcdWriteParameter(0x07); // NLA = 1, NLB = 1, NLC = 1 (all on Frame Inversion)
    
     lcdWriteCommand(POWER_CONTROL1);
-    lcdWriteParameter(0x1a); // VRH = 26:  GVDD = 3.50
+    lcdWriteParameter(0x1a); //0x0a VRH = 26:  GVDD = 3.50
     lcdWriteParameter(0x02); // VC = 2: VCI1 = 2.65
       
     lcdWriteCommand(POWER_CONTROL2);
     lcdWriteParameter(0x02); // BT = 2: AVDD = 2xVCI1, VCL = -1xVCI1, VGH = 5xVCI1, VGL = -2xVCI1
 
     lcdWriteCommand(VCOM_CONTROL1);
-    lcdWriteParameter(0x28); // VMH = 40: VCOMH voltage = 3.5
+    lcdWriteParameter(0x28); //0x50 VMH = 40: VCOMH voltage = 3.5
     lcdWriteParameter(0x5b); // VML = 91: VCOML voltage = -0.225
 	
     lcdWriteCommand(VCOM_OFFSET_CONTROL);
@@ -459,7 +535,7 @@ void lcdInitialise(int orientation)
     lcdWriteParameter(0x00);
     lcdWriteParameter(0x00);
     lcdWriteParameter(0x00);
-    lcdWriteParameter(0x7f); // 128 pixels y
+    lcdWriteParameter(0xA0); //0x7f 128 pixels y
 	
 	// Select display orientation
     lcdWriteCommand(SET_ADDRESS_MODE);
@@ -509,7 +585,7 @@ void lcdPlot(int x, int y, unsigned int colour)
 	lcdWriteParameter(0x00);
 	lcdWriteParameter(y);
 	lcdWriteParameter(0x00);
-	lcdWriteParameter(0x7f);
+	lcdWriteParameter(0xA0);//0x7f
 
 	// Plot the point
 	lcdWriteCommand(WRITE_MEMORY_START);

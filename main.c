@@ -9,10 +9,15 @@ int main(void) {
 	gRes = 2000.0/32768.0;
 	mRes = 10.0 * 4219.0/32760.0;
 
+
 	InitSPI();
 	InitDisplay();
 	lcdInitialise(LCD_ORIENTATION0);
-	lcdLine(1,1,100,100,0xffff);
+
+
+	lcdClearDisplay(decodeRgbValue(0,0,255));
+
+	lcdLine(35,35,100,100,(decodeRgbValue(0,0,255)));
 
 	switch (sensor) {
 		case MPU9250:
@@ -180,10 +185,12 @@ void InitDisplay(){
 	 * 2.0		Read "L" Write "H"
 	 * 2.1		Reset
 	 * 2.2		CS
+	 * 2.3		SCK
+	 * 2.4		MOSI
 	 */
 
-	P2OUT |= BIT0 + BIT1 + BIT2;							//Port 2.0,2.1,2.2 as High
-	P2DIR |= BIT0 + BIT1 + BIT2;							//Port 2.0,2.1,2.2 as Output
+	P2OUT |= BIT0 + BIT1 + BIT2 + BIT3 + BIT4;							//Port 2.0,2.1,2.2 as High
+	P2DIR |= BIT0 + BIT1 + BIT2 + BIT3 + BIT4;							//Port 2.0,2.1,2.2 as Output
 
 	P2OUT &= ~(LCD_RESET);									//Reset auf Low
 	__delay_cycles(100000);
