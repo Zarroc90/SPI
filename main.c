@@ -3,6 +3,8 @@
 
 int main(void) {
 
+	const float alpha=0.5;
+
 	sensor=BMX055;
 	received_ch=0;
 	aRes = 4.0/32768.0;
@@ -19,9 +21,11 @@ int main(void) {
 	lcdPutS("ax=       mG",(lcdTextX(1)),(lcdTextY(1)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 	lcdPutS("ay=       mG",(lcdTextX(1)),(lcdTextY(3)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 	lcdPutS("az=       mG",(lcdTextX(1)),(lcdTextY(5)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-	lcdPutS("gx=       mG",(lcdTextX(1)),(lcdTextY(7)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-	lcdPutS("gy=       mG",(lcdTextX(1)),(lcdTextY(9)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-	lcdPutS("gz=       mG",(lcdTextX(1)),(lcdTextY(11)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gx=       Grad/s",(lcdTextX(1)),(lcdTextY(7)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gy=       Grad/s",(lcdTextX(1)),(lcdTextY(9)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gz=       Grad/s",(lcdTextX(1)),(lcdTextY(11)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("Pitch= ",(lcdTextX(1)),(lcdTextY(13)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("Roll= ",(lcdTextX(1)),(lcdTextY(14)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 
 	switch (sensor) {
 		case MPU9250:
@@ -122,6 +126,14 @@ int main(void) {
 	//-------BMI160------------------------------------------------------------------
 		//whoami=SPI_Read(CS_0,0x00);							//0xD1
 
+		//Low pass filtering the input signals
+		pax= ax * alpha + (pax*(1.0-alpha));
+		pay= ay * alpha + (pay*(1.0-alpha));
+		paz= az * alpha + (paz*(1.0-alpha));
+
+		roll = (atan2(-pay,paz)*180)/M_PI;
+		//pitch = (atan2(pax,sqrt(pay*pay+paz*paz))*180)/M_PI;
+
 
 
 		char str[5];
@@ -139,7 +151,10 @@ int main(void) {
 		sprintf(str,"%d",((int) gz));
 		lcdPutS(str,(lcdTextX(5)),(lcdTextY(11)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 
-
+		sprintf(str,"%d",((int) pitch));
+		lcdPutS(str,(lcdTextX(8)),(lcdTextY(13)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+		sprintf(str,"%d",((int) roll));
+		lcdPutS(str,(lcdTextX(8)),(lcdTextY(14)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 
 	}
 }

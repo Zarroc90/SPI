@@ -15,6 +15,7 @@
 #include <BMX055.h>
 #include <ili9163lcd.h>
 #include <stdio.h>
+#include <math.h>
 
 
 
@@ -29,7 +30,7 @@ enum sensor_type{
 	BMI160,
 };
 
-
+#define	M_PI		3.14159265358979323846	/* pi */
 
 #define CS_0 	BIT5
 #define CS_1	BIT6
@@ -46,6 +47,7 @@ float aRes;
 float gRes;
 float mRes;
 float ax,ay,az,gx,gy,gz,mx,my,mz;
+float pitch,roll,pax,pay,paz;
 
 float temperature;
 
