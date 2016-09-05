@@ -1,10 +1,10 @@
 ******************************************************************************
-                  MSP430 Linker PC v15.12.3                    
+                  MSP430 Linker PC v15.12.2                    
 ******************************************************************************
->> Linked Sat Sep 03 11:42:15 2016
+>> Linked Mon Sep 05 14:27:37 2016
 
 OUTPUT FILE NAME:   <SPI.out>
-ENTRY POINT SYMBOL: "_c_int00_noargs_noexit"  address: 00003ea4
+ENTRY POINT SYMBOL: "_c_int00_noargs_noexit"  address: 0000fc6c
 
 
 MEMORY CONFIGURATION
@@ -14,12 +14,12 @@ MEMORY CONFIGURATION
   SFR                   00000000   00000010  00000000  00000010  RWIX
   PERIPHERALS_8BIT      00000010   000000f0  00000000  000000f0  RWIX
   PERIPHERALS_16BIT     00000100   00000100  00000000  00000100  RWIX
-  RAM                   00000200   00000200  000000b7  00000149  RWIX
+  RAM                   00000200   00000200  000000b9  00000147  RWIX
   INFOD                 00001000   00000040  00000000  00000040  RWIX
   INFOC                 00001040   00000040  00000000  00000040  RWIX
   INFOB                 00001080   00000040  00000000  00000040  RWIX
   INFOA                 000010c0   00000040  00000000  00000040  RWIX
-  FLASH                 0000c000   00003fde  0000072a  000038b4  RWIX
+  FLASH                 0000c000   00003fde  00003dca  00000214  RWIX
   BSLSIGNATURE          0000ffde   00000002  00000002  00000000  RWIX  ffff 
   INT00                 0000ffe0   00000002  00000002  00000000  RWIX
   INT01                 0000ffe2   00000002  00000000  00000002  RWIX
@@ -44,6 +44,7 @@ SECTION ALLOCATION MAP
  output                                  attributes/
 section   page    origin      length       input sections
 --------  ----  ----------  ----------   ----------------
+.const     0    00000000    00000720     FAILED TO ALLOCATE
 .bss       0    00000200    00000067     UNINITIALIZED
                   00000200    00000006     (.common:accelorameter_raw)
                   00000206    00000006     (.common:gyroscope_raw)
@@ -74,23 +75,97 @@ section   page    origin      length       input sections
                   00000264    00000002     (.common:whoami)
                   00000266    00000001     (.common:received_ch)
 
-.text      0    00000000    0000400c     FAILED TO ALLOCATE
+.data      0    00000268    00000002     UNINITIALIZED
+                  00000268    00000002     rts430_eabi.lib : errno.obj (.data)
+
 .stack     0    000003b0    00000050     UNINITIALIZED
                   000003b0    00000002     rts430_eabi.lib : boot.obj (.stack)
                   000003b2    0000004e     --HOLE--
 
-.const     0    0000c000    00000720     
-                  0000c000    00000600     ili9163lcd.obj (.const:font5x8)
-                  0000c600    00000074     main.obj (.const:.string)
-                  0000c674    00000058     rts430_eabi.lib : s_atan.obj (.const:aT)
-                  0000c6cc    00000020                     : s_atan.obj (.const:atanhi)
-                  0000c6ec    00000020                     : s_atan.obj (.const:atanlo)
-                  0000c70c    00000014                     : _printfi_min.obj (.const:.string)
+.text      0    0000c000    00003dae     
+                  0000c000    00000768     main.obj (.text:main)
+                  0000c768    000004b8     rts430_eabi.lib : s_atan.obj (.text:atan)
+                  0000cc20    0000048e                     : frcdivd.obj (.text:__TI_frcdivd)
+                  0000d0ae    00000338                     : e_atan2.obj (.text:atan2)
+                  0000d3e6    000002f4                     : frcmpyd.obj (.text:__TI_frcmpyd)
+                  0000d6da    000002f4                     : e_sqrt.obj (.text:sqrt)
+                  0000d9ce    000002e8                     : addd.obj (.text:__mspabi_addd)
+                  0000dcb6    0000026e                     : mpyd.obj (.text:__mspabi_mpyd)
+                  0000df24    00000260                     : frcaddd.obj (.text:__TI_frcaddd)
+                  0000e184    00000238                     : divd.obj (.text:__mspabi_divd)
+                  0000e3bc    000001f4     ili9163lcd.obj (.text:lcdInitialise)
+                  0000e5b0    000001d0     main.obj (.text:Read_Magnetometer)
+                  0000e780    0000015e     main.obj (.text:Read_Gyroscope)
+                  0000e8de    00000132     rts430_eabi.lib : fs_add.obj (.text)
+                  0000ea10    00000126     main.obj (.text:Read_Accelorameter)
+                  0000eb36    00000116     rts430_eabi.lib : _printfi_min.obj (.text:_setfield)
+                  0000ec4c    000000fc     main.obj (.text:Init_MPU9250)
+                  0000ed48    000000e6     rts430_eabi.lib : _printfi_min.obj (.text:__TI_printfi_minimal)
+                  0000ee2e    000000dc                     : cmpd.obj (.text:__mspabi_cmpd)
+                  0000ef0a    000000c8                     : _printfi_min.obj (.text:_pproc_diouxp)
+                  0000efd2    000000c4                     : fs_mpy.obj (.text)
+                  0000f096    000000be                     : renormd.obj (.text:__TI_renormd)
+                  0000f154    000000b8     main.obj (.text:Init_BMX055)
+                  0000f20c    000000ac     rts430_eabi.lib : fltlid.obj (.text:__mspabi_fltlid)
+                  0000f2b8    000000a4     ili9163lcd.obj (.text:lcdPutCh)
+                  0000f35c    0000008c     rts430_eabi.lib : cvtdf.obj (.text:__mspabi_cvtdf)
+                  0000f3e8    00000072                     : cvtfd.obj (.text:__mspabi_cvtfd)
+                  0000f45a    0000006e                     : autoinit.obj (.text:_auto_init)
+                  0000f4c8    0000006a     main.obj (.text:Init_LSM9DS1)
+                  0000f532    0000006a     main.obj (.text:Read_Temp)
+                  0000f59c    0000006a     main.obj (.text:Setup_Wake_on_Motion_Interrupt)
+                  0000f606    00000068     rts430_eabi.lib : fs_toi.obj (.text)
+                  0000f66e    00000064                     : copy_decompress_rle.obj (.text:__TI_decompress_rle_core)
+                  0000f6d2    0000005c                     : lsr32.obj (.text:l_lsr_const)
+                  0000f72e    0000005c     ili9163lcd.obj (.text:lcdPutS)
+                  0000f78a    0000005a     main.obj (.text:Read_Magnetometer_Id)
+                  0000f7e4    0000005a     rts430_eabi.lib : cpy_tbl.obj (.text:copy_in)
+                  0000f83e    00000052     ili9163lcd.obj (.text:lcdWriteData)
+                  0000f890    0000004e     ili9163lcd.obj (.text:lcdClearDisplay)
+                  0000f8de    0000004c     main.obj (.text:InitSPI)
+                  0000f92a    0000004c     main.obj (.text:SPI_Transceive)
+                  0000f976    0000004c     rts430_eabi.lib : lsr16.obj (.text)
+                  0000f9c2    00000042     main.obj (.text:InitDisplay)
+                  0000fa04    0000003e     rts430_eabi.lib : asr32.obj (.text:l_asr_const)
+                  0000fa42    0000003e                     : lsl32.obj (.text:l_lsl_const)
+                  0000fa80    0000003c     ili9163lcd.obj (.text:lcdWriteCommand)
+                  0000fabc    0000003c     ili9163lcd.obj (.text:lcdWriteParameter)
+                  0000faf8    00000038     rts430_eabi.lib : sprintf.obj (.text:sprintf)
+                  0000fb30    00000036                     : fs_itof.obj (.text)
+                  0000fb66    00000030     main.obj (.text:Port_1)
+                  0000fb96    0000002e     rts430_eabi.lib : subd.obj (.text:__mspabi_subd)
+                  0000fbc4    0000002c                     : asr16.obj (.text)
+                  0000fbf0    0000002c                     : lsl16.obj (.text)
+                  0000fc1c    0000002a                     : negd.obj (.text:__mspabi_negd)
+                  0000fc46    00000026                     : mult32.obj (.text)
+                  0000fc6c    0000001a                     : boot_special.obj (.text:_c_int00_noargs_noexit)
+                  0000fc86    0000001a                     : sprintf.obj (.text:_outs)
+                  0000fca0    0000001a                     : memccpy.obj (.text:memccpy)
+                  0000fcba    00000016                     : div16u.obj (.text)
+                  0000fcd0    00000014                     : memset.obj (.text:memset)
+                  0000fce4    00000014                     : mult16.obj (.text)
+                  0000fcf8    00000012                     : sprintf.obj (.text:_outc)
+                  0000fd0a    00000012                     : copy_decompress_none.obj (.text:decompress:none:__TI_decompress_none)
+                  0000fd1c    00000012                     : lsr32.obj (.text:l_lsr)
+                  0000fd2e    00000012                     : memcpy.obj (.text:memcpy)
+                  0000fd40    00000010                     : asr32.obj (.text:l_asr)
+                  0000fd50    00000010                     : lsl32.obj (.text:l_lsl)
+                  0000fd60    00000010                     : epilog.obj (.text)
+                  0000fd70    0000000e                     : strlen.obj (.text:strlen)
+                  0000fd7e    0000000c                     : fltid.obj (.text:__mspabi_fltid)
+                  0000fd8a    0000000a                     : fs_neg.obj (.text)
+                  0000fd94    00000008                     : isr_trap.obj (.text:_isr:__TI_ISR_TRAP)
+                  0000fd9c    00000006                     : exit.obj (.text:abort)
+                  0000fda2    00000006                     : copy_decompress_rle.obj (.text:decompress:rle24:__TI_decompress_rle24)
+                  0000fda8    00000004                     : pre_init.obj (.text:_system_pre_init)
+                  0000fdac    00000002                     : startup.obj (.text:_system_post_cinit)
 
-.cinit     0    0000c720    0000000a     
-                  0000c720    00000004     (.cinit..bss.load) [load image, compression = zero_init]
-                  0000c724    00000002     (__TI_handler_table)
-                  0000c726    00000004     (__TI_cinit_table)
+.cinit     0    0000fdae    0000001c     
+                  0000fdae    00000009     (.cinit..bss.load) [load image, compression = rle]
+                  0000fdb7    00000001     --HOLE-- [fill = 0]
+                  0000fdb8    00000006     (.cinit..data.load) [load image]
+                  0000fdbe    00000004     (__TI_handler_table)
+                  0000fdc2    00000008     (__TI_cinit_table)
 
 .init_array 
 *          0    0000c000    00000000     UNINITIALIZED
@@ -98,14 +173,14 @@ section   page    origin      length       input sections
 TRAPINT    0    0000ffe0    00000002     
                   0000ffe0    00000002     rts430_eabi.lib : int00.obj (.int00)
 
+$fill000   0    0000ffde    00000002     
+                  0000ffde    00000002     --HOLE-- [fill = ffff]
+
 PORT1      0    0000ffe4    00000002     
                   0000ffe4    00000002     main.obj (.int02)
 
 PORT2      0    0000ffe6    00000002     
                   0000ffe6    00000002     rts430_eabi.lib : int03.obj (.int03)
-
-$fill000   0    0000ffde    00000002     
-                  0000ffde    00000002     --HOLE-- [fill = ffff]
 
 ADC10      0    0000ffea    00000002     
                   0000ffea    00000002     rts430_eabi.lib : int05.obj (.int05)
@@ -149,49 +224,97 @@ NMI        0    0000fffc    00000002
 
 MODULE SUMMARY
 
-       Module              code   ro data   rw data
-       ------              ----   -------   -------
+       Module                     code    ro data   rw data
+       ------                     ----    -------   -------
     .\
-       ili9163lcd.obj      0      1536      103    
-       main.obj            0      118       0      
-    +--+-------------------+------+---------+---------+
-       Total:              0      1654      103    
-                                                   
-    C:\ti\ccsv6\tools\compiler\msp430_15.12.3.LTS\lib\rts430_eabi.lib
-       s_atan.obj          0      152       0      
-       _printfi_min.obj    0      20        0      
-       boot.obj            0      2         0      
-       int00.obj           0      2         0      
-       int03.obj           0      2         0      
-       int05.obj           0      2         0      
-       int06.obj           0      2         0      
-       int07.obj           0      2         0      
-       int08.obj           0      2         0      
-       int09.obj           0      2         0      
-       int10.obj           0      2         0      
-       int11.obj           0      2         0      
-       int12.obj           0      2         0      
-       int13.obj           0      2         0      
-       int14.obj           0      2         0      
-    +--+-------------------+------+---------+---------+
-       Total:              0      198       0      
-                                                   
-       Stack:              0      0         80     
-       Linker Generated:   0      10        0      
-    +--+-------------------+------+---------+---------+
-       Grand Total:        0      1862      183    
+       main.obj                   4114    2         0      
+       ili9163lcd.obj             1036    0         103    
+    +--+--------------------------+-------+---------+---------+
+       Total:                     5150    2         103    
+                                                           
+    D:\Software\TI\ccsv6\tools\compiler\msp430_15.12.2.LTS\lib\rts430_eabi.lib
+       s_atan.obj                 1208    0         0      
+       frcdivd.obj                1166    0         0      
+       e_atan2.obj                824     0         0      
+       e_sqrt.obj                 756     0         0      
+       frcmpyd.obj                756     0         0      
+       addd.obj                   744     0         0      
+       _printfi_min.obj           708     0         0      
+       mpyd.obj                   622     0         0      
+       frcaddd.obj                608     0         0      
+       divd.obj                   568     0         0      
+       fs_add.obj                 306     0         0      
+       cmpd.obj                   220     0         0      
+       fs_mpy.obj                 196     0         0      
+       renormd.obj                190     0         0      
+       fltlid.obj                 172     0         0      
+       cvtdf.obj                  140     0         0      
+       cvtfd.obj                  114     0         0      
+       autoinit.obj               110     0         0      
+       lsr32.obj                  110     0         0      
+       copy_decompress_rle.obj    106     0         0      
+       fs_toi.obj                 104     0         0      
+       sprintf.obj                100     0         0      
+       cpy_tbl.obj                90      0         0      
+       asr32.obj                  78      0         0      
+       lsl32.obj                  78      0         0      
+       lsr16.obj                  76      0         0      
+       fs_itof.obj                54      0         0      
+       subd.obj                   46      0         0      
+       asr16.obj                  44      0         0      
+       lsl16.obj                  44      0         0      
+       negd.obj                   42      0         0      
+       mult32.obj                 38      0         0      
+       boot_special.obj           26      0         0      
+       memccpy.obj                26      0         0      
+       div16u.obj                 22      0         0      
+       memset.obj                 20      0         0      
+       mult16.obj                 20      0         0      
+       copy_decompress_none.obj   18      0         0      
+       memcpy.obj                 18      0         0      
+       epilog.obj                 16      0         0      
+       strlen.obj                 14      0         0      
+       fltid.obj                  12      0         0      
+       fs_neg.obj                 10      0         0      
+       isr_trap.obj               8       0         0      
+       exit.obj                   6       0         0      
+       pre_init.obj               4       0         0      
+       boot.obj                   0       2         0      
+       errno.obj                  0       0         2      
+       int00.obj                  0       2         0      
+       int03.obj                  0       2         0      
+       int05.obj                  0       2         0      
+       int06.obj                  0       2         0      
+       int07.obj                  0       2         0      
+       int08.obj                  0       2         0      
+       int09.obj                  0       2         0      
+       int10.obj                  0       2         0      
+       int11.obj                  0       2         0      
+       int12.obj                  0       2         0      
+       int13.obj                  0       2         0      
+       int14.obj                  0       2         0      
+       startup.obj                2       0         0      
+    +--+--------------------------+-------+---------+---------+
+       Total:                     10640   26        2      
+                                                           
+       Stack:                     0       0         80     
+       Linker Generated:          0       27        0      
+    +--+--------------------------+-------+---------+---------+
+       Grand Total:               15790   55        185    
 
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 0000c726 records: 1, size/record: 4, table size: 4
-	.bss: load addr=0000c720, load size=00000004 bytes, run addr=00000200, run size=00000067 bytes, compression=zero_init
+__TI_cinit_table @ 0000fdc2 records: 2, size/record: 4, table size: 8
+	.bss: load addr=0000fdae, load size=00000009 bytes, run addr=00000200, run size=00000067 bytes, compression=rle
+	.data: load addr=0000fdb8, load size=00000006 bytes, run addr=00000268, run size=00000002 bytes, compression=copy
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 0000c724 records: 1, size/record: 2, table size: 2
-	index: 0, handler: __TI_zero_init
+__TI_handler_table @ 0000fdbe records: 2, size/record: 2, table size: 4
+	index: 0, handler: __TI_decompress_rle24
+	index: 1, handler: __TI_decompress_none
 
 
 GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
@@ -208,7 +331,7 @@ address   name
 00000057  BCSCTL1                       
 00000058  BCSCTL2                       
 00000053  BCSCTL3                       
-00004000  C$$EXIT                       
+0000fd9c  C$$EXIT                       
 00000059  CACTL1                        
 0000005a  CACTL2                        
 000010fb  CALBC1_12MHZ                  
@@ -228,11 +351,11 @@ address   name
 00000001  IE2                           
 00000002  IFG1                          
 00000003  IFG2                          
-00003bfe  InitDisplay                   
-00003b1e  InitSPI                       
-000032e8  Init_BMX055                   
-0000382c  Init_LSM9DS1                  
-00002d56  Init_MPU9250                  
+0000f9c2  InitDisplay                   
+0000f8de  InitSPI                       
+0000f154  Init_BMX055                   
+0000f4c8  Init_LSM9DS1                  
+0000ec4c  Init_MPU9250                  
 0000025a  MagID                         
 00000022  P1DIR                         
 00000025  P1IE                          
@@ -258,16 +381,14 @@ address   name
 00000010  P3REN                         
 0000001b  P3SEL                         
 00000043  P3SEL2                        
-00003dd0  Port_1                        
-0000290c  Read_Accelorameter            
-00002a98  Read_Gyroscope                
-000024e4  Read_Magnetometer             
-00003a76  Read_Magnetometer_Id          
-00003650  Read_Temp                     
-00003f44  SPI_Read                      
-00003bb6  SPI_Transceive                
-00003ffa  SPI_Write                     
-000036ce  Setup_Wake_on_Motion_Interrupt
+0000fb66  Port_1                        
+0000ea10  Read_Accelorameter            
+0000e780  Read_Gyroscope                
+0000e5b0  Read_Magnetometer             
+0000f78a  Read_Magnetometer_Id          
+0000f532  Read_Temp                     
+0000f92a  SPI_Transceive                
+0000f59c  Setup_Wake_on_Motion_Interrupt
 00000172  TA0CCR0                       
 00000174  TA0CCR1                       
 00000176  TA0CCR2                       
@@ -317,16 +438,18 @@ address   name
 00000050  __STACK_SIZE                  
 UNDEFED   __TI_BINIT_Base               
 UNDEFED   __TI_BINIT_Limit              
-0000c726  __TI_CINIT_Base               
-0000c72a  __TI_CINIT_Limit              
-0000c724  __TI_Handler_Table_Base       
-0000c726  __TI_Handler_Table_Limit      
+0000fdc2  __TI_CINIT_Base               
+0000fdca  __TI_CINIT_Limit              
+0000fdbe  __TI_Handler_Table_Base       
+0000fdc2  __TI_Handler_Table_Limit      
 UNDEFED   __TI_INITARRAY_Base           
 UNDEFED   __TI_INITARRAY_Limit          
-00003ff2  __TI_ISR_TRAP                 
-0000204c  __TI_frcaddd                  
-0000103c  __TI_frcdivd                  
-00001802  __TI_frcmpyd                  
+0000fd94  __TI_ISR_TRAP                 
+0000fd0a  __TI_decompress_none          
+0000fda2  __TI_decompress_rle24         
+0000df24  __TI_frcaddd                  
+0000cc20  __TI_frcdivd                  
+0000d3e6  __TI_frcmpyd                  
 0000ffe0  __TI_int00                    
 0000ffe4  __TI_int02                    
 0000ffe6  __TI_int03                    
@@ -341,174 +464,173 @@ UNDEFED   __TI_INITARRAY_Limit
 0000fffa  __TI_int13                    
 0000fffc  __TI_int14                    
 ffffffff  __TI_pprof_out_hndl           
-00002f9a  __TI_printfi_minimal          
+0000ed48  __TI_printfi_minimal          
 ffffffff  __TI_prof_data_size           
 ffffffff  __TI_prof_data_start          
-000033aa  __TI_renormd                  
-00003f08  __TI_zero_init                
+0000f096  __TI_renormd                  
 ffffffff  __c_args__                    
-00001af6  __mspabi_addd                 
-00002c2a  __mspabi_addf                 
-00003080  __mspabi_cmpd                 
-000035c4  __mspabi_cvtdf                
-0000374c  __mspabi_cvtfd                
-000022ac  __mspabi_divd                 
-00003ef2  __mspabi_divu                 
-00003898  __mspabi_fixfi                
-00003fdc  __mspabi_fltid                
-00003d6c  __mspabi_fltif                
-00003518  __mspabi_fltlid               
-00003fca  __mspabi_func_epilog_1        
-00003fc8  __mspabi_func_epilog_2        
-00003fc6  __mspabi_func_epilog_3        
-00003fc4  __mspabi_func_epilog_4        
-00003fc2  __mspabi_func_epilog_5        
-00003fc0  __mspabi_func_epilog_6        
-00003fbe  __mspabi_func_epilog_7        
-00001dde  __mspabi_mpyd                 
-00003224  __mspabi_mpyf                 
-00003f30  __mspabi_mpyi                 
-00003f30  __mspabi_mpyi_sw              
-00003e7e  __mspabi_mpyl                 
-00003e7e  __mspabi_mpyl_sw              
-00003e54  __mspabi_negd                 
-00003fe8  __mspabi_negf                 
-00003ef2  __mspabi_remu                 
-00003e28  __mspabi_slli                 
-00003e50  __mspabi_slli_1               
-00003e3e  __mspabi_slli_10              
-00003e3c  __mspabi_slli_11              
-00003e3a  __mspabi_slli_12              
-00003e38  __mspabi_slli_13              
-00003e36  __mspabi_slli_14              
-00003e34  __mspabi_slli_15              
-00003e4e  __mspabi_slli_2               
-00003e4c  __mspabi_slli_3               
-00003e4a  __mspabi_slli_4               
-00003e48  __mspabi_slli_5               
-00003e46  __mspabi_slli_6               
-00003e44  __mspabi_slli_7               
-00003e42  __mspabi_slli_8               
-00003e40  __mspabi_slli_9               
-00003fae  __mspabi_slll                 
-00003cb6  __mspabi_slll_1               
-00003c92  __mspabi_slll_10              
-00003c8e  __mspabi_slll_11              
-00003c8a  __mspabi_slll_12              
-00003c86  __mspabi_slll_13              
-00003c82  __mspabi_slll_14              
-00003c7e  __mspabi_slll_15              
-00003cb2  __mspabi_slll_2               
-00003cae  __mspabi_slll_3               
-00003caa  __mspabi_slll_4               
-00003ca6  __mspabi_slll_5               
-00003ca2  __mspabi_slll_6               
-00003c9e  __mspabi_slll_7               
-00003c9a  __mspabi_slll_8               
-00003c96  __mspabi_slll_9               
-00003dfc  __mspabi_srai                 
-00003e24  __mspabi_srai_1               
-00003e12  __mspabi_srai_10              
-00003e10  __mspabi_srai_11              
-00003e0e  __mspabi_srai_12              
-00003e0c  __mspabi_srai_13              
-00003e0a  __mspabi_srai_14              
-00003e08  __mspabi_srai_15              
-00003e22  __mspabi_srai_2               
-00003e20  __mspabi_srai_3               
-00003e1e  __mspabi_srai_4               
-00003e1c  __mspabi_srai_5               
-00003e1a  __mspabi_srai_6               
-00003e18  __mspabi_srai_7               
-00003e16  __mspabi_srai_8               
-00003e14  __mspabi_srai_9               
-00003f9e  __mspabi_sral                 
-00003c78  __mspabi_sral_1               
-00003c54  __mspabi_sral_10              
-00003c50  __mspabi_sral_11              
-00003c4c  __mspabi_sral_12              
-00003c48  __mspabi_sral_13              
-00003c44  __mspabi_sral_14              
-00003c40  __mspabi_sral_15              
-00003c74  __mspabi_sral_2               
-00003c70  __mspabi_sral_3               
-00003c6c  __mspabi_sral_4               
-00003c68  __mspabi_sral_5               
-00003c64  __mspabi_sral_6               
-00003c60  __mspabi_sral_7               
-00003c5c  __mspabi_sral_8               
-00003c58  __mspabi_sral_9               
-00003b6a  __mspabi_srli                 
-00003bb0  __mspabi_srli_1               
-00003b8c  __mspabi_srli_10              
-00003b88  __mspabi_srli_11              
-00003b84  __mspabi_srli_12              
-00003b80  __mspabi_srli_13              
-00003b7c  __mspabi_srli_14              
-00003b78  __mspabi_srli_15              
-00003bac  __mspabi_srli_2               
-00003ba8  __mspabi_srli_3               
-00003ba4  __mspabi_srli_4               
-00003ba0  __mspabi_srli_5               
-00003b9c  __mspabi_srli_6               
-00003b98  __mspabi_srli_7               
-00003b94  __mspabi_srli_8               
-00003b90  __mspabi_srli_9               
-00003f7a  __mspabi_srll                 
-000039b8  __mspabi_srll_1               
-00003982  __mspabi_srll_10              
-0000397c  __mspabi_srll_11              
-00003976  __mspabi_srll_12              
-00003970  __mspabi_srll_13              
-0000396a  __mspabi_srll_14              
-00003964  __mspabi_srll_15              
-000039b2  __mspabi_srll_2               
-000039ac  __mspabi_srll_3               
-000039a6  __mspabi_srll_4               
-000039a0  __mspabi_srll_5               
-0000399a  __mspabi_srll_6               
-00003994  __mspabi_srll_7               
-0000398e  __mspabi_srll_8               
-00003988  __mspabi_srll_9               
-00003da2  __mspabi_subd                 
-00002c24  __mspabi_subf                 
-000037be  _auto_init                    
-00003ea4  _c_int00_noargs_noexit        
+0000d9ce  __mspabi_addd                 
+0000e8e4  __mspabi_addf                 
+0000ee2e  __mspabi_cmpd                 
+0000f35c  __mspabi_cvtdf                
+0000f3e8  __mspabi_cvtfd                
+0000e184  __mspabi_divd                 
+0000fcba  __mspabi_divu                 
+0000f606  __mspabi_fixfi                
+0000fd7e  __mspabi_fltid                
+0000fb30  __mspabi_fltif                
+0000f20c  __mspabi_fltlid               
+0000fd6c  __mspabi_func_epilog_1        
+0000fd6a  __mspabi_func_epilog_2        
+0000fd68  __mspabi_func_epilog_3        
+0000fd66  __mspabi_func_epilog_4        
+0000fd64  __mspabi_func_epilog_5        
+0000fd62  __mspabi_func_epilog_6        
+0000fd60  __mspabi_func_epilog_7        
+0000dcb6  __mspabi_mpyd                 
+0000efd2  __mspabi_mpyf                 
+0000fce4  __mspabi_mpyi                 
+0000fce4  __mspabi_mpyi_sw              
+0000fc46  __mspabi_mpyl                 
+0000fc46  __mspabi_mpyl_sw              
+0000fc1c  __mspabi_negd                 
+0000fd8a  __mspabi_negf                 
+0000fcba  __mspabi_remu                 
+0000fbf0  __mspabi_slli                 
+0000fc18  __mspabi_slli_1               
+0000fc06  __mspabi_slli_10              
+0000fc04  __mspabi_slli_11              
+0000fc02  __mspabi_slli_12              
+0000fc00  __mspabi_slli_13              
+0000fbfe  __mspabi_slli_14              
+0000fbfc  __mspabi_slli_15              
+0000fc16  __mspabi_slli_2               
+0000fc14  __mspabi_slli_3               
+0000fc12  __mspabi_slli_4               
+0000fc10  __mspabi_slli_5               
+0000fc0e  __mspabi_slli_6               
+0000fc0c  __mspabi_slli_7               
+0000fc0a  __mspabi_slli_8               
+0000fc08  __mspabi_slli_9               
+0000fd50  __mspabi_slll                 
+0000fa7a  __mspabi_slll_1               
+0000fa56  __mspabi_slll_10              
+0000fa52  __mspabi_slll_11              
+0000fa4e  __mspabi_slll_12              
+0000fa4a  __mspabi_slll_13              
+0000fa46  __mspabi_slll_14              
+0000fa42  __mspabi_slll_15              
+0000fa76  __mspabi_slll_2               
+0000fa72  __mspabi_slll_3               
+0000fa6e  __mspabi_slll_4               
+0000fa6a  __mspabi_slll_5               
+0000fa66  __mspabi_slll_6               
+0000fa62  __mspabi_slll_7               
+0000fa5e  __mspabi_slll_8               
+0000fa5a  __mspabi_slll_9               
+0000fbc4  __mspabi_srai                 
+0000fbec  __mspabi_srai_1               
+0000fbda  __mspabi_srai_10              
+0000fbd8  __mspabi_srai_11              
+0000fbd6  __mspabi_srai_12              
+0000fbd4  __mspabi_srai_13              
+0000fbd2  __mspabi_srai_14              
+0000fbd0  __mspabi_srai_15              
+0000fbea  __mspabi_srai_2               
+0000fbe8  __mspabi_srai_3               
+0000fbe6  __mspabi_srai_4               
+0000fbe4  __mspabi_srai_5               
+0000fbe2  __mspabi_srai_6               
+0000fbe0  __mspabi_srai_7               
+0000fbde  __mspabi_srai_8               
+0000fbdc  __mspabi_srai_9               
+0000fd40  __mspabi_sral                 
+0000fa3c  __mspabi_sral_1               
+0000fa18  __mspabi_sral_10              
+0000fa14  __mspabi_sral_11              
+0000fa10  __mspabi_sral_12              
+0000fa0c  __mspabi_sral_13              
+0000fa08  __mspabi_sral_14              
+0000fa04  __mspabi_sral_15              
+0000fa38  __mspabi_sral_2               
+0000fa34  __mspabi_sral_3               
+0000fa30  __mspabi_sral_4               
+0000fa2c  __mspabi_sral_5               
+0000fa28  __mspabi_sral_6               
+0000fa24  __mspabi_sral_7               
+0000fa20  __mspabi_sral_8               
+0000fa1c  __mspabi_sral_9               
+0000f976  __mspabi_srli                 
+0000f9bc  __mspabi_srli_1               
+0000f998  __mspabi_srli_10              
+0000f994  __mspabi_srli_11              
+0000f990  __mspabi_srli_12              
+0000f98c  __mspabi_srli_13              
+0000f988  __mspabi_srli_14              
+0000f984  __mspabi_srli_15              
+0000f9b8  __mspabi_srli_2               
+0000f9b4  __mspabi_srli_3               
+0000f9b0  __mspabi_srli_4               
+0000f9ac  __mspabi_srli_5               
+0000f9a8  __mspabi_srli_6               
+0000f9a4  __mspabi_srli_7               
+0000f9a0  __mspabi_srli_8               
+0000f99c  __mspabi_srli_9               
+0000fd1c  __mspabi_srll                 
+0000f726  __mspabi_srll_1               
+0000f6f0  __mspabi_srll_10              
+0000f6ea  __mspabi_srll_11              
+0000f6e4  __mspabi_srll_12              
+0000f6de  __mspabi_srll_13              
+0000f6d8  __mspabi_srll_14              
+0000f6d2  __mspabi_srll_15              
+0000f720  __mspabi_srll_2               
+0000f71a  __mspabi_srll_3               
+0000f714  __mspabi_srll_4               
+0000f70e  __mspabi_srll_5               
+0000f708  __mspabi_srll_6               
+0000f702  __mspabi_srll_7               
+0000f6fc  __mspabi_srll_8               
+0000f6f6  __mspabi_srll_9               
+0000fb96  __mspabi_subd                 
+0000e8de  __mspabi_subf                 
+0000f45a  _auto_init                    
+0000fc6c  _c_int00_noargs_noexit        
 0000fffe  _reset_vector                 
 000003b0  _stack                        
-0000400a  _system_post_cinit            
-00004006  _system_pre_init              
+0000fdac  _system_post_cinit            
+0000fda8  _system_pre_init              
 00000212  aRes                          
-00004000  abort                         
+0000fd9c  abort                         
 00000200  accelorameter_raw             
-00000b84  atan                          
-000014ca  atan2                         
-000014ca  atan2l                        
-00000b84  atanl                         
+0000c768  atan                          
+0000d0ae  atan2                         
+0000d0ae  atan2l                        
+0000c768  atanl                         
 00000216  ax                            
 0000021a  ay                            
 0000021e  az                            
-00003a1c  copy_in                       
-00003f68  decodeRgbValue                
-0000c000  font5x8                       
+0000f7e4  copy_in                       
+00000268  errno                         
+00000000  font5x8                       
 00000222  gRes                          
 00000226  gx                            
 0000022a  gy                            
 00000206  gyroscope_raw                 
 0000022e  gz                            
-00003900  lcdClearDisplay               
-00002708  lcdInitialise                 
-00003468  lcdPutCh                      
-000039c0  lcdPutS                       
-00003cbc  lcdWriteCommand               
-00003acc  lcdWriteData                  
-00003cf8  lcdWriteParameter             
+0000f890  lcdClearDisplay               
+0000e3bc  lcdInitialise                 
+0000f2b8  lcdPutCh                      
+0000f72e  lcdPutS                       
+0000fa80  lcdWriteCommand               
+0000f83e  lcdWriteData                  
+0000fabc  lcdWriteParameter             
 00000232  mRes                          
 0000020c  magnetometer_raw              
-00000000  main                          
-00003ed8  memccpy                       
-00003f8c  memcpy                        
-00003f1c  memset                        
+0000c000  main                          
+0000fca0  memccpy                       
+0000fd2e  memcpy                        
+0000fcd0  memset                        
 00000236  mx                            
 0000023a  my                            
 0000023e  mz                            
@@ -519,8 +641,10 @@ ffffffff  __c_args__
 00000266  received_ch                   
 00000252  roll                          
 0000025c  sensor                        
-00003d34  sprintf                       
-00003fce  strlen                        
+0000faf8  sprintf                       
+0000d6da  sqrt                          
+0000d6da  sqrtl                         
+0000fd70  strlen                        
 00000256  temperature                   
 0000025e  test_0                        
 00000260  test_1                        
@@ -533,7 +657,7 @@ GLOBAL SYMBOLS: SORTED BY Symbol Address
 address   name                          
 -------   ----                          
 00000000  IE1                           
-00000000  main                          
+00000000  font5x8                       
 00000001  IE2                           
 00000002  IFG1                          
 00000003  IFG2                          
@@ -647,11 +771,9 @@ address   name
 00000262  test_2                        
 00000264  whoami                        
 00000266  received_ch                   
+00000268  errno                         
 000003b0  _stack                        
 00000400  __STACK_END                   
-00000b84  atan                          
-00000b84  atanl                         
-0000103c  __TI_frcdivd                  
 000010c0  TLV_CHECKSUM                  
 000010da  TLV_ADC10_1_TAG               
 000010db  TLV_ADC10_1_LEN               
@@ -665,179 +787,182 @@ address   name
 000010fd  CALBC1_8MHZ                   
 000010fe  CALDCO_1MHZ                   
 000010ff  CALBC1_1MHZ                   
-000014ca  atan2                         
-000014ca  atan2l                        
-00001802  __TI_frcmpyd                  
-00001af6  __mspabi_addd                 
-00001dde  __mspabi_mpyd                 
-0000204c  __TI_frcaddd                  
-000022ac  __mspabi_divd                 
-000024e4  Read_Magnetometer             
-00002708  lcdInitialise                 
-0000290c  Read_Accelorameter            
-00002a98  Read_Gyroscope                
-00002c24  __mspabi_subf                 
-00002c2a  __mspabi_addf                 
-00002d56  Init_MPU9250                  
-00002f9a  __TI_printfi_minimal          
-00003080  __mspabi_cmpd                 
-00003224  __mspabi_mpyf                 
-000032e8  Init_BMX055                   
-000033aa  __TI_renormd                  
-00003468  lcdPutCh                      
-00003518  __mspabi_fltlid               
-000035c4  __mspabi_cvtdf                
-00003650  Read_Temp                     
-000036ce  Setup_Wake_on_Motion_Interrupt
-0000374c  __mspabi_cvtfd                
-000037be  _auto_init                    
-0000382c  Init_LSM9DS1                  
-00003898  __mspabi_fixfi                
-00003900  lcdClearDisplay               
-00003964  __mspabi_srll_15              
-0000396a  __mspabi_srll_14              
-00003970  __mspabi_srll_13              
-00003976  __mspabi_srll_12              
-0000397c  __mspabi_srll_11              
-00003982  __mspabi_srll_10              
-00003988  __mspabi_srll_9               
-0000398e  __mspabi_srll_8               
-00003994  __mspabi_srll_7               
-0000399a  __mspabi_srll_6               
-000039a0  __mspabi_srll_5               
-000039a6  __mspabi_srll_4               
-000039ac  __mspabi_srll_3               
-000039b2  __mspabi_srll_2               
-000039b8  __mspabi_srll_1               
-000039c0  lcdPutS                       
-00003a1c  copy_in                       
-00003a76  Read_Magnetometer_Id          
-00003acc  lcdWriteData                  
-00003b1e  InitSPI                       
-00003b6a  __mspabi_srli                 
-00003b78  __mspabi_srli_15              
-00003b7c  __mspabi_srli_14              
-00003b80  __mspabi_srli_13              
-00003b84  __mspabi_srli_12              
-00003b88  __mspabi_srli_11              
-00003b8c  __mspabi_srli_10              
-00003b90  __mspabi_srli_9               
-00003b94  __mspabi_srli_8               
-00003b98  __mspabi_srli_7               
-00003b9c  __mspabi_srli_6               
-00003ba0  __mspabi_srli_5               
-00003ba4  __mspabi_srli_4               
-00003ba8  __mspabi_srli_3               
-00003bac  __mspabi_srli_2               
-00003bb0  __mspabi_srli_1               
-00003bb6  SPI_Transceive                
-00003bfe  InitDisplay                   
-00003c40  __mspabi_sral_15              
-00003c44  __mspabi_sral_14              
-00003c48  __mspabi_sral_13              
-00003c4c  __mspabi_sral_12              
-00003c50  __mspabi_sral_11              
-00003c54  __mspabi_sral_10              
-00003c58  __mspabi_sral_9               
-00003c5c  __mspabi_sral_8               
-00003c60  __mspabi_sral_7               
-00003c64  __mspabi_sral_6               
-00003c68  __mspabi_sral_5               
-00003c6c  __mspabi_sral_4               
-00003c70  __mspabi_sral_3               
-00003c74  __mspabi_sral_2               
-00003c78  __mspabi_sral_1               
-00003c7e  __mspabi_slll_15              
-00003c82  __mspabi_slll_14              
-00003c86  __mspabi_slll_13              
-00003c8a  __mspabi_slll_12              
-00003c8e  __mspabi_slll_11              
-00003c92  __mspabi_slll_10              
-00003c96  __mspabi_slll_9               
-00003c9a  __mspabi_slll_8               
-00003c9e  __mspabi_slll_7               
-00003ca2  __mspabi_slll_6               
-00003ca6  __mspabi_slll_5               
-00003caa  __mspabi_slll_4               
-00003cae  __mspabi_slll_3               
-00003cb2  __mspabi_slll_2               
-00003cb6  __mspabi_slll_1               
-00003cbc  lcdWriteCommand               
-00003cf8  lcdWriteParameter             
-00003d34  sprintf                       
-00003d6c  __mspabi_fltif                
-00003da2  __mspabi_subd                 
-00003dd0  Port_1                        
-00003dfc  __mspabi_srai                 
-00003e08  __mspabi_srai_15              
-00003e0a  __mspabi_srai_14              
-00003e0c  __mspabi_srai_13              
-00003e0e  __mspabi_srai_12              
-00003e10  __mspabi_srai_11              
-00003e12  __mspabi_srai_10              
-00003e14  __mspabi_srai_9               
-00003e16  __mspabi_srai_8               
-00003e18  __mspabi_srai_7               
-00003e1a  __mspabi_srai_6               
-00003e1c  __mspabi_srai_5               
-00003e1e  __mspabi_srai_4               
-00003e20  __mspabi_srai_3               
-00003e22  __mspabi_srai_2               
-00003e24  __mspabi_srai_1               
-00003e28  __mspabi_slli                 
-00003e34  __mspabi_slli_15              
-00003e36  __mspabi_slli_14              
-00003e38  __mspabi_slli_13              
-00003e3a  __mspabi_slli_12              
-00003e3c  __mspabi_slli_11              
-00003e3e  __mspabi_slli_10              
-00003e40  __mspabi_slli_9               
-00003e42  __mspabi_slli_8               
-00003e44  __mspabi_slli_7               
-00003e46  __mspabi_slli_6               
-00003e48  __mspabi_slli_5               
-00003e4a  __mspabi_slli_4               
-00003e4c  __mspabi_slli_3               
-00003e4e  __mspabi_slli_2               
-00003e50  __mspabi_slli_1               
-00003e54  __mspabi_negd                 
-00003e7e  __mspabi_mpyl                 
-00003e7e  __mspabi_mpyl_sw              
-00003ea4  _c_int00_noargs_noexit        
-00003ed8  memccpy                       
-00003ef2  __mspabi_divu                 
-00003ef2  __mspabi_remu                 
-00003f08  __TI_zero_init                
-00003f1c  memset                        
-00003f30  __mspabi_mpyi                 
-00003f30  __mspabi_mpyi_sw              
-00003f44  SPI_Read                      
-00003f68  decodeRgbValue                
-00003f7a  __mspabi_srll                 
-00003f8c  memcpy                        
-00003f9e  __mspabi_sral                 
-00003fae  __mspabi_slll                 
-00003fbe  __mspabi_func_epilog_7        
-00003fc0  __mspabi_func_epilog_6        
-00003fc2  __mspabi_func_epilog_5        
-00003fc4  __mspabi_func_epilog_4        
-00003fc6  __mspabi_func_epilog_3        
-00003fc8  __mspabi_func_epilog_2        
-00003fca  __mspabi_func_epilog_1        
-00003fce  strlen                        
-00003fdc  __mspabi_fltid                
-00003fe8  __mspabi_negf                 
-00003ff2  __TI_ISR_TRAP                 
-00003ffa  SPI_Write                     
-00004000  C$$EXIT                       
-00004000  abort                         
-00004006  _system_pre_init              
-0000400a  _system_post_cinit            
-0000c000  font5x8                       
-0000c724  __TI_Handler_Table_Base       
-0000c726  __TI_CINIT_Base               
-0000c726  __TI_Handler_Table_Limit      
-0000c72a  __TI_CINIT_Limit              
+0000c000  main                          
+0000c768  atan                          
+0000c768  atanl                         
+0000cc20  __TI_frcdivd                  
+0000d0ae  atan2                         
+0000d0ae  atan2l                        
+0000d3e6  __TI_frcmpyd                  
+0000d6da  sqrt                          
+0000d6da  sqrtl                         
+0000d9ce  __mspabi_addd                 
+0000dcb6  __mspabi_mpyd                 
+0000df24  __TI_frcaddd                  
+0000e184  __mspabi_divd                 
+0000e3bc  lcdInitialise                 
+0000e5b0  Read_Magnetometer             
+0000e780  Read_Gyroscope                
+0000e8de  __mspabi_subf                 
+0000e8e4  __mspabi_addf                 
+0000ea10  Read_Accelorameter            
+0000ec4c  Init_MPU9250                  
+0000ed48  __TI_printfi_minimal          
+0000ee2e  __mspabi_cmpd                 
+0000efd2  __mspabi_mpyf                 
+0000f096  __TI_renormd                  
+0000f154  Init_BMX055                   
+0000f20c  __mspabi_fltlid               
+0000f2b8  lcdPutCh                      
+0000f35c  __mspabi_cvtdf                
+0000f3e8  __mspabi_cvtfd                
+0000f45a  _auto_init                    
+0000f4c8  Init_LSM9DS1                  
+0000f532  Read_Temp                     
+0000f59c  Setup_Wake_on_Motion_Interrupt
+0000f606  __mspabi_fixfi                
+0000f6d2  __mspabi_srll_15              
+0000f6d8  __mspabi_srll_14              
+0000f6de  __mspabi_srll_13              
+0000f6e4  __mspabi_srll_12              
+0000f6ea  __mspabi_srll_11              
+0000f6f0  __mspabi_srll_10              
+0000f6f6  __mspabi_srll_9               
+0000f6fc  __mspabi_srll_8               
+0000f702  __mspabi_srll_7               
+0000f708  __mspabi_srll_6               
+0000f70e  __mspabi_srll_5               
+0000f714  __mspabi_srll_4               
+0000f71a  __mspabi_srll_3               
+0000f720  __mspabi_srll_2               
+0000f726  __mspabi_srll_1               
+0000f72e  lcdPutS                       
+0000f78a  Read_Magnetometer_Id          
+0000f7e4  copy_in                       
+0000f83e  lcdWriteData                  
+0000f890  lcdClearDisplay               
+0000f8de  InitSPI                       
+0000f92a  SPI_Transceive                
+0000f976  __mspabi_srli                 
+0000f984  __mspabi_srli_15              
+0000f988  __mspabi_srli_14              
+0000f98c  __mspabi_srli_13              
+0000f990  __mspabi_srli_12              
+0000f994  __mspabi_srli_11              
+0000f998  __mspabi_srli_10              
+0000f99c  __mspabi_srli_9               
+0000f9a0  __mspabi_srli_8               
+0000f9a4  __mspabi_srli_7               
+0000f9a8  __mspabi_srli_6               
+0000f9ac  __mspabi_srli_5               
+0000f9b0  __mspabi_srli_4               
+0000f9b4  __mspabi_srli_3               
+0000f9b8  __mspabi_srli_2               
+0000f9bc  __mspabi_srli_1               
+0000f9c2  InitDisplay                   
+0000fa04  __mspabi_sral_15              
+0000fa08  __mspabi_sral_14              
+0000fa0c  __mspabi_sral_13              
+0000fa10  __mspabi_sral_12              
+0000fa14  __mspabi_sral_11              
+0000fa18  __mspabi_sral_10              
+0000fa1c  __mspabi_sral_9               
+0000fa20  __mspabi_sral_8               
+0000fa24  __mspabi_sral_7               
+0000fa28  __mspabi_sral_6               
+0000fa2c  __mspabi_sral_5               
+0000fa30  __mspabi_sral_4               
+0000fa34  __mspabi_sral_3               
+0000fa38  __mspabi_sral_2               
+0000fa3c  __mspabi_sral_1               
+0000fa42  __mspabi_slll_15              
+0000fa46  __mspabi_slll_14              
+0000fa4a  __mspabi_slll_13              
+0000fa4e  __mspabi_slll_12              
+0000fa52  __mspabi_slll_11              
+0000fa56  __mspabi_slll_10              
+0000fa5a  __mspabi_slll_9               
+0000fa5e  __mspabi_slll_8               
+0000fa62  __mspabi_slll_7               
+0000fa66  __mspabi_slll_6               
+0000fa6a  __mspabi_slll_5               
+0000fa6e  __mspabi_slll_4               
+0000fa72  __mspabi_slll_3               
+0000fa76  __mspabi_slll_2               
+0000fa7a  __mspabi_slll_1               
+0000fa80  lcdWriteCommand               
+0000fabc  lcdWriteParameter             
+0000faf8  sprintf                       
+0000fb30  __mspabi_fltif                
+0000fb66  Port_1                        
+0000fb96  __mspabi_subd                 
+0000fbc4  __mspabi_srai                 
+0000fbd0  __mspabi_srai_15              
+0000fbd2  __mspabi_srai_14              
+0000fbd4  __mspabi_srai_13              
+0000fbd6  __mspabi_srai_12              
+0000fbd8  __mspabi_srai_11              
+0000fbda  __mspabi_srai_10              
+0000fbdc  __mspabi_srai_9               
+0000fbde  __mspabi_srai_8               
+0000fbe0  __mspabi_srai_7               
+0000fbe2  __mspabi_srai_6               
+0000fbe4  __mspabi_srai_5               
+0000fbe6  __mspabi_srai_4               
+0000fbe8  __mspabi_srai_3               
+0000fbea  __mspabi_srai_2               
+0000fbec  __mspabi_srai_1               
+0000fbf0  __mspabi_slli                 
+0000fbfc  __mspabi_slli_15              
+0000fbfe  __mspabi_slli_14              
+0000fc00  __mspabi_slli_13              
+0000fc02  __mspabi_slli_12              
+0000fc04  __mspabi_slli_11              
+0000fc06  __mspabi_slli_10              
+0000fc08  __mspabi_slli_9               
+0000fc0a  __mspabi_slli_8               
+0000fc0c  __mspabi_slli_7               
+0000fc0e  __mspabi_slli_6               
+0000fc10  __mspabi_slli_5               
+0000fc12  __mspabi_slli_4               
+0000fc14  __mspabi_slli_3               
+0000fc16  __mspabi_slli_2               
+0000fc18  __mspabi_slli_1               
+0000fc1c  __mspabi_negd                 
+0000fc46  __mspabi_mpyl                 
+0000fc46  __mspabi_mpyl_sw              
+0000fc6c  _c_int00_noargs_noexit        
+0000fca0  memccpy                       
+0000fcba  __mspabi_divu                 
+0000fcba  __mspabi_remu                 
+0000fcd0  memset                        
+0000fce4  __mspabi_mpyi                 
+0000fce4  __mspabi_mpyi_sw              
+0000fd0a  __TI_decompress_none          
+0000fd1c  __mspabi_srll                 
+0000fd2e  memcpy                        
+0000fd40  __mspabi_sral                 
+0000fd50  __mspabi_slll                 
+0000fd60  __mspabi_func_epilog_7        
+0000fd62  __mspabi_func_epilog_6        
+0000fd64  __mspabi_func_epilog_5        
+0000fd66  __mspabi_func_epilog_4        
+0000fd68  __mspabi_func_epilog_3        
+0000fd6a  __mspabi_func_epilog_2        
+0000fd6c  __mspabi_func_epilog_1        
+0000fd70  strlen                        
+0000fd7e  __mspabi_fltid                
+0000fd8a  __mspabi_negf                 
+0000fd94  __TI_ISR_TRAP                 
+0000fd9c  C$$EXIT                       
+0000fd9c  abort                         
+0000fda2  __TI_decompress_rle24         
+0000fda8  _system_pre_init              
+0000fdac  _system_post_cinit            
+0000fdbe  __TI_Handler_Table_Base       
+0000fdc2  __TI_CINIT_Base               
+0000fdc2  __TI_Handler_Table_Limit      
+0000fdca  __TI_CINIT_Limit              
 0000ffe0  __TI_int00                    
 0000ffe4  __TI_int02                    
 0000ffe6  __TI_int03                    
@@ -861,4 +986,4 @@ UNDEFED   __TI_BINIT_Limit
 UNDEFED   __TI_INITARRAY_Base           
 UNDEFED   __TI_INITARRAY_Limit          
 
-[328 symbols]
+[329 symbols]
