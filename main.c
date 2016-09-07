@@ -3,9 +3,9 @@
 
 int main(void) {
 
-	const float alpha=0.5;
+	//const float alpha=0.5;
 
-	sensor=BMX055;
+	sensor=BMI160;
 	received_ch=0;
 	aRes = 4.0/32768.0;
 	gRes = 2000.0/32768.0;
@@ -44,7 +44,7 @@ int main(void) {
 		}
 		case BMI160:
 		{
-//			Init_BMI160();
+			Init_BMI160();
 			break;
 		}
 		default:
@@ -114,6 +114,22 @@ int main(void) {
 					my=magnetometer_raw[1]*0.079;
 					mz=magnetometer_raw[2]*0.152;
 					temperature = ((float)Read_Temp()/2 + 23.0);
+					break;
+				}
+				case BMI160:
+				{
+					whoami=SPI_Read(CS_0,0x00);							//0xD1
+					test_0=SPI_Read(BMI160_AG,BMI160_USER_ERROR_ADDR);
+					test_1=SPI_Read(BMI160_AG,BMI160_USER_PMU_STAT_ADDR);
+					Read_Accelorameter(accelorameter_raw);
+					ax=accelorameter_raw[0]*aRes;
+					ay=accelorameter_raw[1]*aRes;
+					az=accelorameter_raw[2]*aRes;
+					Read_Gyroscope(gyroscope_raw);
+					gx=gyroscope_raw[0]*gRes;
+					gy=gyroscope_raw[1]*gRes;
+					gz=gyroscope_raw[2]*gRes;
+					//temperature = ((float)Read_Temp()/2 + 23.0);
 					break;
 				}
 				default:
@@ -304,7 +320,20 @@ void Init_BMX055(){
 
 }
 
+void Init_BMI160(){
 
+	SPI_Write(BMI160_AG,BMI160_CMD_COMMANDS_ADDR,0xB6);			//softreset
+	__delay_cycles(200000);
+	SPI_Write(BMI160_AG,BMI160_USER_ACCEL_CONFIG_ADDR,0x23);	//ACC CONFIG: 2 -> normal mode, 3 ODR 3,125Hz
+	SPI_Write(BMI160_AG,BMI160_USER_ACCEL_RANGE_ADDR,0x05);		//ACC Range 0x03 -> 2g, 0x05 -> 4g, 0x08 ->8g
+	SPI_Write(BMI160_AG,BMI160_USER_GYRO_CONFIG_ADDR,0x26);		//GYRO Config 2 -> normal Mode, 6 -> 25HZ output rate
+	SPI_Write(BMI160_AG,BMI160_USER_GYRO_RANGE_ADDR,0x00);		//Gyro Range: 2000°/s
+	SPI_Write(BMI160_AG,BMI160_CMD_COMMANDS_ADDR,0x11);			//Start ACC
+	__delay_cycles(10000);
+	SPI_Write(BMI160_AG,BMI160_CMD_COMMANDS_ADDR,0x15);			//Start Gyro
+
+
+}
 
 int Read_Temp(){
 
@@ -371,6 +400,16 @@ void Read_Accelorameter(int * destination){
 			rawData[5]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Z_LSB);
 			break;
 		}
+		case BMI160:
+		{
+			rawData[0]=(int)SPI_Read(BMI160_AG,BMI160_ACC_X_MSB);
+			rawData[1]=(int)SPI_Read(BMI160_AG,BMI160_ACC_X_LSB);
+			rawData[2]=(int)SPI_Read(BMI160_AG,BMI160_ACC_Y_MSB);
+			rawData[3]=(int)SPI_Read(BMI160_AG,BMI160_ACC_Y_LSB);
+			rawData[4]=(int)SPI_Read(BMI160_AG,BMI160_ACC_Z_MSB);
+			rawData[5]=(int)SPI_Read(BMI160_AG,BMI160_ACC_Z_LSB);
+			break;
+		}
 		default:
 			break;
 	}
@@ -413,6 +452,16 @@ void Read_Gyroscope(int * destination){
 			rawData[3]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_Y_LSB);
 			rawData[4]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_Z_MSB);
 			rawData[5]=(int)SPI_Read(BMX055_G,BMX055_GYRO_RATE_Z_LSB);
+			break;
+		}
+		case BMI160:
+		{
+			rawData[0]=(int)SPI_Read(BMI160_AG,BMI160_GYRO_X_MSB);
+			rawData[1]=(int)SPI_Read(BMI160_AG,BMI160_GYRO_X_LSB);
+			rawData[2]=(int)SPI_Read(BMI160_AG,BMI160_GYRO_Y_MSB);
+			rawData[3]=(int)SPI_Read(BMI160_AG,BMI160_GYRO_Y_LSB);
+			rawData[4]=(int)SPI_Read(BMI160_AG,BMI160_GYRO_Z_MSB);
+			rawData[5]=(int)SPI_Read(BMI160_AG,BMI160_GYRO_Z_LSB);
 			break;
 		}
 		default:

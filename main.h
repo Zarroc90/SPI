@@ -16,6 +16,7 @@
 #include <ili9163lcd.h>
 #include <stdio.h>
 #include <math.h>
+#include <BMI160.h>
 
 
 
@@ -56,6 +57,7 @@ void InitDisplay();
 void Init_MPU9250();
 void Init_LSM9DS1();
 void Init_BMX055();
+void Init_BMI160();
 int Read_Temp();
 void Read_Accelorameter(int * destination);
 void Read_Gyroscope(int * destination);

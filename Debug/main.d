@@ -17,6 +17,7 @@ main.obj: D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/linkage
 main.obj: D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/stdarg.h
 main.obj: D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/math.h
 main.obj: D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/_defs.h
+main.obj: E:/Projekte/TI_II/SPI/BMI160.h
 
 ../main.c: 
 E:/Projekte/TI_II/SPI/main.h: 
@@ -35,3 +36,4 @@ D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/linkage.h:
 D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/stdarg.h: 
 D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/math.h: 
 D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/_defs.h: 
+E:/Projekte/TI_II/SPI/BMI160.h: 

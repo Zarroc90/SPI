@@ -19,6 +19,7 @@ ili9163lcd.obj: D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/s
 ili9163lcd.obj: D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/stdarg.h
 ili9163lcd.obj: D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/math.h
 ili9163lcd.obj: D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/_defs.h
+ili9163lcd.obj: E:/Projekte/TI_II/SPI/BMI160.h
 
 ../ili9163lcd.c: 
 D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/string.h: 
@@ -39,3 +40,4 @@ D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/stdio.h:
 D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/stdarg.h: 
 D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/math.h: 
 D:/Software/TI/ccsv6/tools/compiler/msp430_15.12.2.LTS/include/_defs.h: 
+E:/Projekte/TI_II/SPI/BMI160.h: 
