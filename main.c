@@ -18,12 +18,12 @@ int main(void) {
 	lcdInitialise(LCD_ORIENTATION0);
 	lcdClearDisplay(decodeRgbValue(255,255,255));
 
-	lcdPutS("ax=       mG",(lcdTextX(1)),(lcdTextY(1)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-	lcdPutS("ay=       mG",(lcdTextX(1)),(lcdTextY(3)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-	lcdPutS("az=       mG",(lcdTextX(1)),(lcdTextY(5)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-	lcdPutS("gx=       Grad/s",(lcdTextX(1)),(lcdTextY(7)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-	lcdPutS("gy=       Grad/s",(lcdTextX(1)),(lcdTextY(9)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-	lcdPutS("gz=       Grad/s",(lcdTextX(1)),(lcdTextY(11)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("ax=        mG",(lcdTextX(1)),(lcdTextY(1)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("ay=        mG",(lcdTextX(1)),(lcdTextY(3)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("az=        mG",(lcdTextX(1)),(lcdTextY(5)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gx=        Grad/s",(lcdTextX(1)),(lcdTextY(7)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gy=        Grad/s",(lcdTextX(1)),(lcdTextY(9)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
+	lcdPutS("gz=        Grad/s",(lcdTextX(1)),(lcdTextY(11)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 
 	switch (sensor) {
 		case MPU9250:
@@ -140,24 +140,130 @@ int main(void) {
 	//-------BMI160------------------------------------------------------------------
 		//whoami=SPI_Read(CS_0,0x00);							//0xD1
 
-		char str[5];
-		sprintf(str,"%d",((int) (ax*10*1000)));
+		char str[7];
+
+		sprintf(str,"%d",((int) (ax*1000)));
+		String_number_rightify((ax*1000),str);
 		lcdPutS(str,(lcdTextX(5)),(lcdTextY(1)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-		sprintf(str,"%d",((int) (ay*10000)));
+		sprintf(str,"%d",((int) (ay*1000)));
+		String_number_rightify((ay*1000),str);
 		lcdPutS(str,(lcdTextX(5)),(lcdTextY(3)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
-		sprintf(str,"%d",((int) (az*10000)));
+		sprintf(str,"%d",((int) (az*1000)));
+		String_number_rightify((az*1000),str);
 		lcdPutS(str,(lcdTextX(5)),(lcdTextY(5)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 
 		sprintf(str,"%d",((int) gx));
+		String_number_rightify(gx,str);
 		lcdPutS(str,(lcdTextX(5)),(lcdTextY(7)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 		sprintf(str,"%d",((int) gy));
+		String_number_rightify(gy,str);
 		lcdPutS(str,(lcdTextX(5)),(lcdTextY(9)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 		sprintf(str,"%d",((int) gz));
+		String_number_rightify(gz,str);
 		lcdPutS(str,(lcdTextX(5)),(lcdTextY(11)),(decodeRgbValue(0,0,0)),(decodeRgbValue(255,255,255)));
 
 	}
 }
 
+void String_number_rightify(float number, char str[]){
+
+
+	if ((((int) (number))<=99999 && ((int) (number))>=10000)  || (((int) (number))>=-99999 && ((int) (number))<=-10000 ) ) {
+		if (str[0]==0x2d) {
+			str[6]=0;
+			str[5]=str[5];
+			str[4]=str[4];
+			str[3]=str[3];
+			str[2]=str[2];
+			str[1]=str[1];
+			str[0]=str[0];
+		}
+		else
+		{str[6]=0;
+		str[5]=str[4];
+		str[4]=str[3];
+		str[3]=str[2];
+		str[2]=str[1];
+		str[1]=str[0];
+		str[0]=0x20;}
+	}
+	else if ((((int) (number))<=9999 && ((int) (number))>=1000) || (((int) (number))>=-9999 && ((int) (number))<=-1000)) {
+		if (str[0]==0x2d) {
+			str[6]=0;
+			str[5]=str[4];
+			str[4]=str[3];
+			str[3]=str[2];
+			str[2]=str[1];
+			str[1]=0x20;
+			str[0]=str[0];
+		}
+		else{
+		str[6]=0;
+		str[5]=str[3];
+		str[4]=str[2];
+		str[3]=str[1];
+		str[2]=str[0];
+		str[1]=0x20;
+		str[0]=0x20;}
+	}
+	else if ((((int) (number))<=999 && ((int) (number))>=100) || (((int) (number))>=-999 && ((int) (number))<=-100)) {
+		if (str[0]==0x2d) {
+			str[6]=0;
+			str[5]=str[3];
+			str[4]=str[2];
+			str[3]=str[1];
+			str[2]=0x20;
+			str[1]=0x20;
+			str[0]=str[0];
+		}
+		else{
+		str[6]=0;
+		str[5]=str[2];
+		str[4]=str[1];
+		str[3]=str[0];
+		str[2]=0x20;
+		str[1]=0x20;
+		str[0]=0x20;}
+	}
+	else if ((((int) (number))<=99 && ((int) (number))>=10) || (((int) (number))>=-99 && ((int) (number))<=-10)) {
+		if (str[0]==0x2d) {
+			str[6]=0;
+			str[5]=str[2];
+			str[4]=str[1];
+			str[3]=0x20;
+			str[2]=0x20;
+			str[1]=0x20;
+			str[0]=str[0];
+		}
+		else{
+		str[6]=0;
+		str[5]=str[1];
+		str[4]=str[0];
+		str[3]=0x20;
+		str[2]=0x20;
+		str[1]=0x20;
+		str[0]=0x20;}
+	}
+	else if ((((int) (number))<=9 && ((int) (number))>=0) || (((int) (number))>=-9 && ((int) (number))<=-1)) {
+		if (str[0]==0x2d) {
+			str[6]=0;
+			str[5]=str[1];
+			str[4]=0x20;
+			str[3]=0x20;
+			str[2]=0x20;
+			str[1]=0x20;
+			str[0]=str[0];
+		}
+		else{
+		str[6]=0;
+		str[5]=str[0];
+		str[4]=0x20;
+		str[3]=0x20;
+		str[2]=0x20;
+		str[1]=0x20;
+		str[0]=0x20;}
+	}
+}
 
 void InitSPI(){
 	//--------------Init SPI ----------------------------------------------------------------------

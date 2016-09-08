@@ -52,6 +52,7 @@ float pitch,roll,pax,pay,paz;
 
 float temperature;
 
+void String_number_rightify(float number, char *str);
 void InitSPI();
 void InitDisplay();
 void Init_MPU9250();
