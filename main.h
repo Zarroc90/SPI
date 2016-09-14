@@ -38,7 +38,7 @@ enum sensor_type{
 #define CS_2	BIT7
 #define	CS_3	BIT2
 
-int sensor;
+int sensor,read;
 int accelorameter_raw[3];
 int gyroscope_raw[3];
 int magnetometer_raw[3];

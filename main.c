@@ -5,11 +5,12 @@ int main(void) {
 
 	//const float alpha=0.5;
 
-	sensor=BMI160;
+	sensor=BMX055;
 	received_ch=0;
-	aRes = 4.0/32768.0;
+	aRes = 4.0/2048.0;
 	gRes = 2000.0/32768.0;
 	mRes = 10.0 * 4219.0/32760.0;
+	read =0;
 
 
 	InitSPI();
@@ -51,7 +52,7 @@ int main(void) {
 			break;
 	}
 
-
+	__enable_interrupt();
 
 	while(1)
 	{
@@ -97,12 +98,16 @@ int main(void) {
 				case BMX055:
 				{
 					//whoami=SPI_Read(BMX055_A,0x00);								//0xFA
-					whoami=SPI_Read(BMX055_M,0x40);									//0x32
-					Read_Accelorameter(accelorameter_raw);
-					ax=accelorameter_raw[0]*aRes;
-					ay=accelorameter_raw[1]*aRes;
-					az=accelorameter_raw[2]*aRes;
-					Read_Gyroscope(gyroscope_raw);
+					//whoami=SPI_Read(BMX055_M,0x40);									//0x32
+					if (read == 1) {
+						Read_Accelorameter(accelorameter_raw);
+						ax=accelorameter_raw[0]*aRes;
+						ay=accelorameter_raw[1]*aRes;
+						az=accelorameter_raw[2]*aRes;
+						read=0;
+					}
+
+					/*Read_Gyroscope(gyroscope_raw);
 					gx=gyroscope_raw[0]*gRes;
 					gy=gyroscope_raw[1]*gRes;
 					gz=gyroscope_raw[2]*gRes;
@@ -113,7 +118,7 @@ int main(void) {
 					mx=magnetometer_raw[0]*0.079;
 					my=magnetometer_raw[1]*0.079;
 					mz=magnetometer_raw[2]*0.152;
-					temperature = ((float)Read_Temp()/2 + 23.0);
+					temperature = ((float)Read_Temp()/2 + 23.0);*/
 					break;
 				}
 				case BMI160:
@@ -298,7 +303,6 @@ void InitSPI(){
 	P1IE |= BIT3;											//P1.3 Interrupt enabled
 	P1IES &= ~BIT3;											//Interrupt direction from low to high
 	P1IFG &= ~BIT3;											//P1.3 IFG is cleared
-	//__enable_interrupt();
 
 	//----------------Init SPI End----------------------------------------------------------------------
 
@@ -412,7 +416,7 @@ void Init_BMX055(){
 	SPI_Write(BMX055_M,BMX055_MAG_PWR_CNTL1,0x82);
 	__delay_cycles(100000);
 	SPI_Write(BMX055_A,BMX055_ACC_PMU_RANGE,AFS_4G);
-	SPI_Write(BMX055_A,BMX055_ACC_PMU_BW,ABW_8Hz);
+	SPI_Write(BMX055_A,BMX055_ACC_PMU_BW,ABW_1000Hz);
 	SPI_Write(BMX055_G,BMX055_GYRO_RANGE,GFS_2000DPS);
 	SPI_Write(BMX055_G,BMX055_GYRO_BW,(0x80|G_2000Hz230Hz));
 	SPI_Write(BMX055_M,BMX055_MAG_PWR_CNTL1,0x01);
@@ -421,7 +425,24 @@ void Init_BMX055(){
 	SPI_Write(BMX055_M,BMX055_MAG_REP_XY,0x04);								//Rep x/y 	=9  -> 2 x 4 +1 =9
 	SPI_Write(BMX055_M,BMX055_MAG_REP_Z,0x0E);								//Rep z 	=15 -> 14 +1 =15
 
+	//-------- ACC Low Power Mode 1 100ms sleep interval
 
+	SPI_Write(BMX055_A,BMX055_ACC_PMU_LPW,0x5A);							//ACC Low_power enabled + sleep duration 100ms
+	SPI_Write(BMX055_A,BMX055_ACC_PMU_LOW_POWER,0x00);						//ACC LPM1 + event driven time base mode
+
+	SPI_Write(BMX055_A,BMX055_ACC_INT_EN_1,0x10);							//ACC interrupt new data ready enabled
+	SPI_Write(BMX055_A,BMX055_ACC_INT_MAP_1,0x01);							//ACC Data ready interrupt Int1 Pin
+
+	//------- Gyro in deep suspend mode
+
+	SPI_Write(BMX055_G,BMX055_GYRO_LPM1,0x20);								//Gyro in deep-suspend mode
+	SPI_Write(BMX055_G,BMX055_GYRO_LPM2,0x10);								//Gyro external Wakeup Int3 Pin
+	SPI_Write(BMX055_G,BMX055_GYRO_INT_EN_0,0x80);							//Gyro enable Data Ready interrupt
+	SPI_Write(BMX055_G,BMX055_GYRO_INT_MAP_1,0x80);							//Gyro Interrupt on Int4 Pin
+
+	//------- Magnetometer
+
+	SPI_Write(BMX055_M,BMX055_MAG_PWR_CNTL1,0x00);							//MAG Suspend mode
 
 
 }
@@ -484,6 +505,10 @@ void Read_Accelorameter(int * destination){
 			rawData[3]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_YOUT_L);
 			rawData[4]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_ZOUT_H);
 			rawData[5]=(int)SPI_Read(MPU9250_AGM,MPUREG_ACCEL_ZOUT_L);
+
+			destination[0]=(rawData[0]<<8)|rawData[1];
+			destination[1]=(rawData[2]<<8)|rawData[3];
+			destination[2]=(rawData[4]<<8)|rawData[5];
 			break;
 		}
 		case LSM9DS1:
@@ -494,16 +519,25 @@ void Read_Accelorameter(int * destination){
 			rawData[3]=(int)SPI_Read(LSM9DS1_AG,OUT_Y_L_XL);
 			rawData[4]=(int)SPI_Read(LSM9DS1_AG,OUT_Z_H_XL);
 			rawData[5]=(int)SPI_Read(LSM9DS1_AG,OUT_Z_L_XL);
+
+			destination[0]=(rawData[0]<<8)|rawData[1];
+			destination[1]=(rawData[2]<<8)|rawData[3];
+			destination[2]=(rawData[4]<<8)|rawData[5];
 			break;
+
 		}
 		case BMX055:
 		{
-			rawData[0]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_X_MSB);
 			rawData[1]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_X_LSB);
-			rawData[2]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Y_MSB);
+			rawData[0]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_X_MSB);
 			rawData[3]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Y_LSB);
-			rawData[4]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Z_MSB);
+			rawData[2]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Y_MSB);
 			rawData[5]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Z_LSB);
+			rawData[4]=(int)SPI_Read(BMX055_A,BMX055_ACC_D_Z_MSB);
+
+			destination[0]=(rawData[0]<<4)|((rawData[1]>>4)&0x0F);
+			destination[1]=(rawData[2]<<4)|((rawData[3]>>4)&0x0F);
+			destination[2]=(rawData[4]<<4)|((rawData[5]>>4)&0x0F);
 			break;
 		}
 		case BMI160:
@@ -514,15 +548,15 @@ void Read_Accelorameter(int * destination){
 			rawData[3]=(int)SPI_Read(BMI160_AG,BMI160_ACC_Y_LSB);
 			rawData[4]=(int)SPI_Read(BMI160_AG,BMI160_ACC_Z_MSB);
 			rawData[5]=(int)SPI_Read(BMI160_AG,BMI160_ACC_Z_LSB);
+
+			destination[0]=(rawData[0]<<8)|rawData[1];
+			destination[1]=(rawData[2]<<8)|rawData[3];
+			destination[2]=(rawData[4]<<8)|rawData[5];
 			break;
 		}
 		default:
 			break;
 	}
-
-	destination[0]=(rawData[0]<<8)|rawData[1];
-	destination[1]=(rawData[2]<<8)|rawData[3];
-	destination[2]=(rawData[4]<<8)|rawData[5];
 }
 
 void Read_Gyroscope(int * destination){
@@ -710,7 +744,13 @@ char SPI_Transceive(char cs_signal,char reg,char data) {
 #pragma vector=PORT1_VECTOR
 __interrupt void Port_1(void){
 
-	P1OUT ^= BIT6;				//Toggle LED
+	//MPU9250
+	/*P1OUT ^= BIT6;				//Toggle LED
 	P1IFG &= ~BIT3;				//Clear Interrupt Flag
-	SPI_Read(MPU9250_AGM,MPUREG_INT_STATUS);//Clear INterrupt MPU9250
+	SPI_Read(MPU9250_AGM,MPUREG_INT_STATUS);//Clear INterrupt MPU9250*/
+
+	//BMX055
+
+	read=1;
+	P1IFG &= ~BIT3;				//Clear Interrupt Flag
 }
